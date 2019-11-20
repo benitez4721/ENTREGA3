@@ -1,0 +1,10 @@
+|[
+	declare 
+	x, y, z, p : int, int, array[0..2], bool;
+	j : int
+
+	x := x + y + z
+	
+	 
+	
+]|
