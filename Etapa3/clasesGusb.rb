@@ -309,7 +309,7 @@ class Asignacion
 
 	# -- Funcion de impresion --
 	def to_s(tab) 
-		return (" "*tab) + "Asig\n " + @identificador.to_s(tab) + (" "*(tab+1)) + "Exp\n" + @expresion.to_s(tab+2) 
+		return (" "*tab) + "Asig\n " + @identificador.to_s(tab) + @expresion.to_s(tab+1) 
 	end
 end
 
@@ -518,12 +518,13 @@ end
 # Representa el nodo de un ListArrayAsig
 class ListArrayAsig
 	
-	attr_accessor :identificador, :exp1, :exp2, :lista_exp
+	attr_accessor :identificador, :exp1, :exp2, :lista_exp, :consult
 
-	def initialize(identificador,exp1,exp2,lista_exp) 
+	def initialize(identificador,exp1,exp2,lista_exp,consult) 
 		@exp1 = exp1
 		@exp2 = exp2
 		@lista_exp = lista_exp
+		@consult = consult
 	end
 
 	#-- Funcion de impresion --
@@ -536,7 +537,17 @@ class ListArrayAsig
 		end
 		
 		return s
-	end	
+	end
+
+	def get_consult()
+		if @lista_exp != nil
+			@lista_exp.get_consult()
+		else
+			if @consult != nil
+				return @consult
+			end
+		end
+	end				
 end			
 
 # -- Clase ArrayAsig --
@@ -553,8 +564,13 @@ class ArrayAsig
 
 	#-- Funcion de impresion --
 	def to_s(tab)
-		
-		return (" "*tab) +"ArrayAsig\n" + @listArrayAsig.to_s(tab+1,@identificador)
+		consult = @listArrayAsig.get_consult()
+		if consult != nil
+			return (" "*tab) + "EvalArray\n"+ (" "*(tab+1)) +"ArrayAsig\n" + @listArrayAsig.to_s(tab+2,@identificador) + consult.to_s(tab+1)
+		else
+			
+			return (" "*tab) +"ArrayAsig\n" + @listArrayAsig.to_s(tab+1,@identificador)
+		end	
 	end
 end	
 
@@ -574,7 +590,39 @@ class ArrayConsult
 		
 		return (" "*tab) +"EvalArray\n" + @identificador.to_s(tab+1) + (" "*(tab+1)) +"Exp\n"+ @exp.to_s(tab+2)
 	end
+end
+
+class ArrayIni
+
+	attr_accessor :exp, :lista_exp
+
+	def initialize(exp,lista_exp)
+		@exp = exp
+		@lista_exp = lista_exp
+	end
+	
+	def to_s(tab)
+		s =""
+		if lista_exp != nil
+			s <<(" "*tab) + "Exp\n" + exp.to_s(tab+1) + lista_exp.to_s(tab)
+		else
+			s << (" "*tab) + "Exp\n" + exp.to_s(tab+1)
+		end
+		return s
+	end
+	
+	def length(x)
+		if @lista_exp != nil
+			x = x +1
+			@lista_exp.length(x)
+		else
+			x = x +1
+			return x
+		end
+	end			
 end			
+
+
 
 #--Clase Tipo--
 class Tipo
@@ -597,6 +645,11 @@ class Tipo
 			return @tipo.to_s() + "[" + num1.valor.to_s() + ".." + num2.valor.to_s() + "]"
 		end	
 	end
+	def size()
+		if num1 != nil
+			return @num2.valor.to_s().to_i()-@num1.valor.to_s().to_i()
+		end	
+	end	
 end
 
 class TipoNum < Tipo
@@ -618,6 +671,8 @@ class TipoArray < Tipo
 	def initialize(tipo,num1,num2)
 		super(tipo,num1,num2)
 	end
+	
+
 end							
 # -- Clase Literal --
 #

@@ -82,7 +82,11 @@ class ParserGusb
 
 	# Reglas para reconocer asignaciones
 	ASIGNACION
-		: IDENTIFICADOR 'TkAsig' EXPRESION 		{ result = Asignacion.new(val[0], val[2]) }
+		: IDENTIFICADOR 'TkAsig' ARRAY_INI 		{ result = Asignacion.new(val[0], val[2]) }
+		;
+	ARRAY_INI
+		: EXPRESION	'TkComma' ARRAY_INI {result = ArrayIni.new(val[0],val[2])}
+		| EXPRESION 					{result = ArrayIni.new(val[0],nil)}
 		;
 
 	# Reglas para reconocer una lista de identificadores
@@ -100,7 +104,8 @@ class ParserGusb
 	EXPRESION
 		: LITERAL					{ result = val[0] }
 		| IDENTIFICADOR 			{ result = val[0] }
-		| EXP_ARRAY					{ result = val[0] }
+		| EXP_ARRAY 				{ result = val[0] }
+		| IDENTIFICADOR EXP_ARRAY_REC					{ result = ArrayAsig.new(val[0],val[1]) }
 		| 'TkAtoi' 'TkOpenPar' EXPRESION 'TkClosePar'	{ result = Atoi.new(val[2]) }
 		| 'TkSize' 'TkOpenPar' EXPRESION 'TkClosePar'	{ result = Size.new(val[2]) }
 		| 'TkMin' 'TkOpenPar' EXPRESION 'TkClosePar'	 { result = Min.new(val[2]) }
@@ -110,7 +115,6 @@ class ParserGusb
 		| EXPRESION 'TkMult' EXPRESION 	{ result = OpMultiplicacion.new(val[0],val[1], val[2]) }
 		| EXPRESION 'TkDiv' EXPRESION   { result = OpDivisionE.new(val[0],val[1], val[2]) }
 		| EXPRESION 'TkMod' EXPRESION   { result = OpModE.new(val[0],val[1], val[2]) }
-		| EXPRESION 'TkComma' EXPRESION   { result = OpComa.new(val[0],val[1],val[2])}
 		| 'TkOpenPar' EXPRESION 'TkClosePar'			{ result = val[1] }
 		| 'TkMinus' EXPRESION = UMINUS 	{ result = OpUMINUS.new(val[0], val[1]) }
 		| EXPRESION 'TkAnd' EXPRESION  { result = OpAnd.new(val[0],val[1], val[2]) }
@@ -133,12 +137,12 @@ class ParserGusb
 	#Reglas para reconoces expresiones de arreglos
 	EXP_ARRAY
 		: IDENTIFICADOR 'Tk0Bracket' EXPRESION 'TkCBracket' {result = ArrayConsult.new(val[0],val[2])}
-		| IDENTIFICADOR EXP_ARRAY_REC {result = ArrayAsig.new(val[0],val[1])}
 		;
 
 	EXP_ARRAY_REC
-		: 'TkOpenPar' EXPRESION 'TkTwoPoints' EXPRESION 'TkClosePar' EXP_ARRAY_REC	{result = ListArrayAsig.new(nil,val[1],val[3],val[5])}
-		| 'TkOpenPar' EXPRESION 'TkTwoPoints' EXPRESION 'TkClosePar' 				{result = ListArrayAsig.new(nil,val[1],val[3],nil)}
+		: 'TkOpenPar' EXPRESION 'TkTwoPoints' EXPRESION 'TkClosePar' EXP_ARRAY_REC	{result = ListArrayAsig.new(nil,val[1],val[3],val[5],nil)}
+		| 'TkOpenPar' EXPRESION 'TkTwoPoints' EXPRESION 'TkClosePar' 				{result = ListArrayAsig.new(nil,val[1],val[3],nil,nil)}
+		| 'TkOpenPar' EXPRESION 'TkTwoPoints' EXPRESION 'TkClosePar' 'Tk0Bracket' EXPRESION 'TkCBracket'  {result = ListArrayAsig.new(nil,val[1],val[3],nil,val[6])}
 		;	
 	# Reglas de Literales Numericos
 	LITERAL_NUMERO

@@ -151,7 +151,72 @@ class ErrTipoConversion
 	def Error_to_s()
 		"Error Fila #{@pos[0]} Columna #{@pos[1]}: Argunmento invalido para la funcion '#{@fun}', se esperaba un 'array' y se recibio un 'int'"
 	end	
-end		
+end
+
+class ErrTipoArrayConsult
+
+	def initialize(id,tipo,pos)
+		@id = id
+		@pos = pos
+		@tipo = tipo
+		$Error = true
+	end	
+
+	def Error_to_s()
+		"Error Fila #{@pos[0]} Columna #{@pos[1]}: La variable '#{@id}' es de tipo '#{@tipo}' , debe ser de tipo 'array'."
+	end
+end	
+
+class ErrExpConsult
+
+	def initialize(exp_tipo,pos)
+		@exp_tipo = exp_tipo
+		@pos = pos
+		$Error = true
+	end
+	
+	def Error_to_s()
+		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}: Expresion de tipo '#{@exp_tipo}', indice de un arreglo debe ser de tipo 'int' "		
+	end
+end
+
+class ErrArrayAsig
+
+	def initialize(exp_tipo,pos)
+		@exp_tipo = exp_tipo
+		@pos = pos
+		$Error = true
+	end
+	
+	def Error_to_s()
+		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}: Expresion de tipo '#{@exp_tipo}',  un arreglo solo admite valores de tipo 'int' "		
+	end
+end
+
+class ErrTipoArrayIni
+	
+	def initialize(exp_tipo,pos)
+		@exp_tipo = exp_tipo
+		@pos = pos
+		$Error = true
+	end
+	
+	def Error_to_s()
+		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}: Se intento realizar una inicializacion de arreglo a una varibale de tipo '#{@exp_tipo}'. "		
+	end
+end	
+
+class ErrCardinalidadArray
+	
+	def initialize(pos)
+		@pos = pos
+		$Error = true
+	end
+	
+	def Error_to_s()
+		return "Error Fila #{@pos[0]} Columna #{@pos[1]}: El numero de asignaciones debe ser igual a la longitud del arreglo"
+	end
+end						
 
 class Programa
 
@@ -245,7 +310,7 @@ class Identificador
 				elsif tipo.tipo == "bool"
 					valor = [tipo.value(),false]
 				else tipo.tipo == "array"
-					valor = [tipo.value(),0]	
+					valor = [tipo.value(),tipo.size()]	
 				end
 				padre.insert(@id.to_s(),valor)
 				return tipo.tipo
@@ -305,21 +370,70 @@ end
 class Asignacion
 
 	def check(padre)
+		
+		x = 0
+		exp_length = @expresion.length(x)
 		tipo_id = @identificador.check(padre,nil)
-		tipo_exp = @expresion.check(padre,nil)
+		tipo_exp = @expresion.check(padre,nil,exp_length)
 
 		if tipo_id == "Not_Modify"
 			error = ErrModifyIter.new(@identificador.id.to_s(),@identificador.pos(),":=")
 			puts error.Error_to_s
 			exit()
-		end	
-		if tipo_id != tipo_exp
-			error = ErrAsignacion.new(tipo_id,tipo_exp,@identificador.id.fila,@identificador.id.columna)
-			puts error.Error_to_s
+		end
+
+		if (tipo_id == "int" || tipo_id == "bool") && exp_length > 1
+			error = ErrTipoArrayIni.new(tipo_id,@identificador.pos())
+			puts error.Error_to_s()
 			exit()
-		end	
+
+		elsif exp_length == 1 	 			 	
+			if (tipo_id == "int" || tipo_id == "bool") && tipo_id != tipo_exp
+				error = ErrAsignacion.new(tipo_id,tipo_exp,@identificador.id.fila,@identificador.id.columna)
+				puts error.Error_to_s
+				exit()
+			end	
+
+		end
+
+		if tipo_id != "int" && tipo_id != "bool"
+			if padre.get(@identificador.id.to_s())[1] != exp_length
+				error = ErrCardinalidadArray.new(@identificador.pos())
+				puts error.Error_to_s()
+				exit()
+			end
+		end		
+
+
 	end
 end
+
+class ArrayIni
+	def check(padre,tipo=nil,exp_length)
+		if exp_length == 1
+			exp_tipo = @exp.check(padre,nil)
+			return exp_tipo
+		else	
+			if @lista_exp != nil
+				exp_tipo = @exp.check(padre,nil)
+				if exp_tipo != "int"
+					error = ErrArrayAsig.new(exp_tipo,@exp.pos())
+					puts error.Error_to_s
+					exit()
+				end	
+				@lista_exp.check(padre,nil,0)
+			else
+				exp_tipo = @exp.check(padre,nil)
+				if exp_tipo != "int"
+					error = ErrArrayAsig.new(exp_tipo,@exp.pos())
+					puts error.Error_to_s
+					exit()
+				end
+			end
+		end			
+
+	end
+end		
 
 class Entrada
 
@@ -928,6 +1042,95 @@ class Literal
 		return @tipo.to_s()
 	end
 end				
+
+class ArrayConsult
+
+	def check(padre,tipo=nil)
+		tipo_id = @identificador.check(padre,nil)
+
+		if tipo_id == "int" || tipo_id == "bool"
+			error = ErrTipoArrayConsult.new(@identificador.id.to_s(),tipo_id,@identificador.pos())
+			puts error.Error_to_s()
+			exit()
+		end
+
+		exp = @exp.check(padre,nil)
+
+		if exp != "int"
+			error = ErrExpConsult.new(exp,@exp.pos())
+			puts error.Error_to_s()
+			exit()
+		end	
+		
+		return "int"
+	end
+end	
+
+class ArrayAsig
+
+	def check(padre,tipo=nil)
+		tipo_id = @identificador.check(padre,nil)
+
+		if tipo_id == "int" || tipo_id == "bool"
+			error = ErrTipoArrayConsult.new(@identificador.id.to_s(),tipo_id,@identificador.pos())
+			puts error.Error_to_s()
+			exit()
+		end
+
+		consulta = @listArrayAsig.get_consult()
+		if consulta != nil
+			consulta_tipo = consulta.check(padre,nil)
+			if consulta_tipo != "int"
+				error = ErrExpConsult.new(consulta_tipo,consulta.pos())
+				puts error.Error_to_s()
+				exit()
+			end
+		end		
+
+
+		@listArrayAsig.check(padre,nil)	
+
+		return tipo_id
+	end
+end
+
+class ListArrayAsig
+
+	def check(padre,tipo=nil)
+		if @lista_exp != nil
+			exp1_tipo = @exp1.check(padre,nil)
+			exp2_tipo = @exp2.check(padre,nil)
+			if exp1_tipo != "int"
+				error = ErrExpConsult.new(exp1_tipo,@exp1.pos())
+				puts error.Error_to_s()
+				exit()
+			end
+			
+			if exp2_tipo != "int"
+				error = ErrArrayAsig.new(exp2_tipo,@exp2.pos())
+				puts error.Error_to_s()
+				exit()
+			end		
+			@lista_exp.check(padre,nil)
+		else
+			exp1_tipo = @exp1.check(padre,nil)
+			exp2_tipo = @exp2.check(padre,nil)
+			if exp1_tipo != "int"
+				error = ErrExpConsult.new(exp1_tipo,@exp1.pos())
+				puts error.Error_to_s()
+				exit()
+			end
+			
+			if exp2_tipo != "int"
+				error = ErrArrayAsig.new(exp2_tipo,@exp2.pos())
+				puts error.Error_to_s()
+				exit()
+			end
+		end
+	end
+end					
+
+
 
 
 
