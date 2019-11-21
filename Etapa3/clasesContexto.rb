@@ -63,7 +63,93 @@ class ErrOpBinaria
 	end
 	
 	def Error_to_s()
-		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}:Operando de tipo #{@tipo_operando}, debe ser de tipo #{@tipo_operador} "
+		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}:Operando de tipo '#{@tipo_operando}', debe ser de tipo '#{@tipo_operador}' para la operacion '#{@operador.to_s()}' "
+	end	
+end
+
+class ErrTipoOpBinaria
+
+	def initialize(operando1,tipo_operando1,operando2,tipo_operando2,operador,pos)
+		@operando1 = operando1
+		@tipo_operando1 = tipo_operando1
+		@operando2 = operando2
+		@tipo_operando2 = tipo_operando2
+		@operador = operador
+		@pos = pos
+		$Error = true
+	end
+	
+	def Error_to_s()
+		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}: Operacion invalida '#{@operador.to_s()}', los operandos  deben ser del mismo tipo"
+	end
+end
+
+class ErrOpUnaria
+
+	def initialize(tipo_operando,operador,tipo_operador,pos)
+		@tipo_operando = tipo_operando
+		@operador = operador
+		@tipo_operador = tipo_operador
+		@pos = pos
+		$Error = true
+	end
+	
+	def Error_to_s()
+		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}:Operando de tipo '#{@tipo_operando}', debe ser de tipo '#{@tipo_operador}' para la operacion '#{@operador.to_s()}' "	
+	end
+end
+
+class ErrCondicional
+
+	def initialize(tipo_cond,pos)
+		@tipo_cond = tipo_cond
+		@pos = pos
+		$Error = true
+	end
+	
+	def Error_to_s()
+		return "Error Fila #{@pos[0]} Columna #{@pos[1]}: Condicional de tipo '#{@tipo_cond}', debe ser de tipo 'bool'"
+	end
+end
+
+class ErrExpFor
+
+	def initialize(exp_tipo,pos)
+		@exp_tipo = exp_tipo
+		@pos = pos
+		$Error = true
+	end
+	
+	def Error_to_s()
+		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}: Expresion de tipo '#{@exp_tipo}', debe ser de tipo 'int' "		
+	end
+end	
+
+class ErrModifyIter
+
+	def initialize(id,pos,inst)
+		@id = id
+		@pos = pos
+		@inst = inst
+		$Error = true
+	end
+	
+	def Error_to_s()	
+		"Error Fila #{@pos[0]} Columna #{@pos[1]}: Instruccion '#{@inst}' invalida, se intento modificar la variable de iteracion '#{@id}'"
+	end
+end
+
+class ErrTipoConversion
+
+	def initialize(fun,tipo,pos)
+		@fun = fun
+		@pos = pos
+		@tipo = tipo
+		$Error = true
+	end
+
+	def Error_to_s()
+		"Error Fila #{@pos[0]} Columna #{@pos[1]}: Argunmento invalido para la funcion '#{@fun}', se esperaba un 'array' y se recibio un 'int'"
 	end	
 end		
 
@@ -79,8 +165,7 @@ end
 
 class Cuerpo
 
-	def check(padre,type=nil)
-
+	def check(padre,tipo=nil)
 		@table = STable.new()
 
 		if padre != nil
@@ -107,34 +192,42 @@ class ListaDeclaracion
 		if @l_declaraciones != nil
 			@l_declaraciones.check(padre)
 		end
-		
-		@declaracion.check(padre,nil,0)
+
+		if @declaracion.get_modo == "card"
+			arreglo = []
+			array = @declaracion.get_array_type(arreglo).reverse
+			@declaracion.check(padre,nil,0,array)
+		else
+			@declaracion.check(padre,nil,0)
+		end			
 	end
 	
 end
 
 class Decla_Card
 
-	def check(padre,tipo,i)
+	def check(padre,tipo,i,array)
+	
 		if @l_identificadores != nil
-			@identificador1.check(padre,$array_type[i])
-			@l_identificadores.check(padre,nil,i+1)
+			@identificador1.check(padre,array[i])
+			@l_identificadores.check(padre,nil,i+1,array)
 		else
-			@identificador1.check(padre,$array_type[i])
-			@identificador2.check(padre,$array_type[i+1])
+			@identificador1.check(padre,array[i])
+			@identificador2.check(padre,array[i+1])
 		end
+
 	end
 end				 
 
 class Decla_Tipo
 
 	def check(padre,tipo,i=nil)
-
+		tip = get_tipo()
 		if @l_identificadores != nil
-			@identificador.check(padre,$type)
+			@identificador.check(padre,tip)
 			@l_identificadores.check(padre,nil)
 		else
-			@identificador.check(padre,$type)
+			@identificador.check(padre,tip)
 		end	
 	end
 end
@@ -146,7 +239,6 @@ class Identificador
 		if tipo != nil
 
 			if not padre.ExistKey(@id.to_s())
-
 				if tipo.tipo == "int"
 					valor = [tipo.value(),0]
 				
@@ -166,11 +258,9 @@ class Identificador
 		else
 
 			if not padre.ExistKey(@id.to_s())
-
 				upper_table = padre.get("T_Padre")
 
 				while upper_table != nil
-
 					if not upper_table.ExistKey(@id.to_s())
 
 						upper_table = upper_table.get("T_Padre")
@@ -217,6 +307,12 @@ class Asignacion
 	def check(padre)
 		tipo_id = @identificador.check(padre,nil)
 		tipo_exp = @expresion.check(padre,nil)
+
+		if tipo_id == "Not_Modify"
+			error = ErrModifyIter.new(@identificador.id.to_s(),@identificador.pos(),":=")
+			puts error.Error_to_s
+			exit()
+		end	
 		if tipo_id != tipo_exp
 			error = ErrAsignacion.new(tipo_id,tipo_exp,@identificador.id.fila,@identificador.id.columna)
 			puts error.Error_to_s
@@ -228,34 +324,48 @@ end
 class Entrada
 
 	def check(padre)
-
+		@identificador.check(padre,nil)
 	end
 end	
 
 class Salida
 
-	def check(padre)
-	
+	def check(padre,tipo=nil)
+		@l_imprimir.check(padre,nil)
 	end		
 end
 
 class Imprimir
 
-	def check(padre)
-	
+	def check(padre,tipo = nil)
+
+		if @lista_impresion != nil
+			@lista_impresion.check(padre,nil)
+		end
+		@impresion.check(padre,nil)	
+		
 	end		
 end
 
 class Str
 
-	def check(padre)
-	
+	def check(padre=nil,tipo=nil)
+		return @string
 	end		
 end
 
 class Condicional
 
-	def check(padre)
+	def check(padre,tipo=nil)
+		
+		cond_tipo = @condicion.check(padre,nil)
+
+		if cond_tipo != "bool"
+
+			error = ErrCondicional.new(cond_tipo,@condicion.pos())
+			puts error.Error_to_s
+			exit()
+		end
 
 		@lista_instrucciones1.check(padre)
 		if @lista_instrucciones2 != nil
@@ -267,7 +377,16 @@ end
 
 class Guardia
 
-	def check(padre)
+	def check(padre,tipo=nil)
+		cond_tipo = @condicion.check(padre,nil)
+
+		if cond_tipo != "bool"
+
+			error = ErrCondicional.new(cond_tipo,@condicion.pos())
+			puts error.Error_to_s
+			exit()
+		end
+
 		@lista_instrucciones1.check(padre)
 		if @lista_instrucciones2 != nil
 			@lista_instrucciones2.check(padre)
@@ -275,6 +394,119 @@ class Guardia
 	end		
 end
 
+class IteradorFor
+
+	def check(padre,tipo=nil)
+
+		@for_table = STable.new()
+		@for_table.insert("T_Padre",padre)
+
+		@for_table.insert(@id.id.to_s(),["Not_Modify",0])
+
+		exp1_tipo = @exp1.check(padre,nil)
+		exp2_tipo = @exp2.check(padre,nil)
+
+		if exp1_tipo != "int"
+			error = ErrExpFor.new(exp1_tipo,@exp1.pos())
+			puts error.Error_to_s
+			exit()
+
+		elsif exp2_tipo != "int"
+			error = ErrExpFor.new(exp2_tipo,@exp2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+
+		if @cuerpo.l_declaraciones != nil
+			@cuerpo.l_declaraciones.check(@for_table)
+		end
+		
+		if @cuerpo.l_instrucciones != nil
+			@cuerpo.l_instrucciones.check(@for_table)
+		end
+	end
+end
+
+class IteratorDo
+
+	def check(padre,tipo=nil)
+		
+		cond_tipo = @condicion.check(padre,nil)
+
+		if cond_tipo != "bool"
+
+			error = ErrCondicional.new(cond_tipo,@condicion.pos())
+			puts error.Error_to_s
+			exit()
+		end
+
+		@lista_instrucciones1.check(padre)
+		if @lista_instrucciones2 != nil
+			@lista_instrucciones2.check(padre)
+		end	
+
+	end		
+end
+
+class Min
+
+	def check(padre,tipo=nil)
+		tipo = @identificador.check(padre,nil)
+
+		if tipo == "int" || tipo == "bool"
+			error = ErrTipoConversion.new("min()",tipo,@identificador.pos())
+			puts error.Error_to_s
+			exit()
+		end
+
+		return "int"
+	end
+end
+
+class Max
+
+	def check(padre,tipo=nil)
+		tipo = @identificador.check(padre,nil)
+
+		if tipo == "int" || tipo == "bool"
+			error = ErrTipoConversion.new("max()",tipo,@identificador.pos())
+			puts error.Error_to_s
+			exit()
+		end
+
+		return "int"
+	end
+end
+
+class Atoi
+
+	def check(padre,tipo=nil)
+		tipo = @identificador.check(padre,nil)
+
+		if tipo == "int" || tipo == "bool"
+			error = ErrTipoConversion.new("atoi()",tipo,@identificador.pos())
+			puts error.Error_to_s
+			exit()
+		end
+
+		return "int"
+	end
+end	
+
+class Size
+
+	def check(padre,tipo=nil)
+		tipo = @identificador.check(padre,nil)
+
+		if tipo == "int" || tipo == "bool"
+			error = ErrTipoConversion.new("size()",tipo,@identificador.pos())
+			puts error.Error_to_s
+			exit()
+		end
+
+		return "int"
+	end
+end										
 #--- OPERACIONES BINARIAS--
 
 class OpSuma
@@ -284,19 +516,419 @@ class OpSuma
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,"+","int",@oper1.pos())
 			puts error.Error_to_s
 			exit()
 		elsif tipo2 != "int"	
-			error = ErrOpBinaria.new(tipo2,"+","int",@oper1.pos())
+			error = ErrOpBinaria.new(tipo2,"+","int",@oper2.pos())
 			puts error.Error_to_s
 			exit()
 		end
 		
 		return "int"	
 	end
-end			
+end
+
+class OpResta
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "int"
+			error = ErrOpBinaria.new(tipo1,"-","int",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "int"	
+			error = ErrOpBinaria.new(tipo2,"-","int",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "int"	
+	end
+end
+
+class OpMultiplicacion
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "int"
+			error = ErrOpBinaria.new(tipo1,"*","int",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "int"	
+			error = ErrOpBinaria.new(tipo2,"*","int",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "int"	
+	end
+end
+
+class OpDivisionE
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "int"
+			error = ErrOpBinaria.new(tipo1,"/","int",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "int"	
+			error = ErrOpBinaria.new(tipo2,"/","int",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "int"	
+	end
+end
+
+class OpModE
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "int"
+			error = ErrOpBinaria.new(tipo1,"%","int",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "int"	
+			error = ErrOpBinaria.new(tipo2,"%","int",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "int"	
+	end
+end
+
+class OpEquivalente
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != tipo2
+			error = ErrTipoOpBinaria.new(@oper1,tipo1,@oper2,tipo2,"==",@op.position())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "bool"	
+	end
+end
+
+class OpDesigual
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != tipo2
+			error = ErrTipoOpBinaria.new(@oper1,tipo1,@oper2,tipo2,"!=",@op.position())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "bool"	
+	end
+end
+
+class OpMayorIgual
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "int"
+			error = ErrOpBinaria.new(tipo1,">=","int",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "int"	
+			error = ErrOpBinaria.new(tipo2,">=","int",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "bool"	
+	end
+end
+
+class OpMenorIgual
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "int"
+			error = ErrOpBinaria.new(tipo1,"<=","int",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "int"	
+			error = ErrOpBinaria.new(tipo2,"<=","int",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "bool"	
+	end
+end
+
+class OpMenor
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "int"
+			error = ErrOpBinaria.new(tipo1,"<","int",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "int"	
+			error = ErrOpBinaria.new(tipo2,"<","int",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "bool"	
+	end
+end				
+
+class OpMayor
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "int"
+			error = ErrOpBinaria.new(tipo1,">","int",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "int"	
+			error = ErrOpBinaria.new(tipo2,">","int",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "bool"	
+	end
+end
+
+class OpAnd
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "bool"
+			error = ErrOpBinaria.new(tipo1,"/\\","bool",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "bool"	
+			error = ErrOpBinaria.new(tipo2,"/\\","bool",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "bool"	
+	end
+end
+
+class OpOr
+
+	def check(padre,tipo=nil)
+
+		tipo1 = @oper1.check(padre,nil)
+		tipo2 = @oper2.check(padre,nil)
+
+		if tipo1 == "Not_Modify"
+			tipo1 = "int"
+		end
+
+		if tipo2 == "Not_Modify"
+			tipo2 = "int"
+		end
+
+		if tipo1 != "bool"
+			error = ErrOpBinaria.new(tipo1,"\\/","bool",@oper1.pos())
+			puts error.Error_to_s
+			exit()
+		elsif tipo2 != "bool"	
+			error = ErrOpBinaria.new(tipo2,"\\/","bool",@oper2.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "bool"	
+	end
+end
+
+#---Operaciones Unarias---
+
+
+class OpExclamacion
+
+	def check(padre,tipo=nil)
+
+		tipo = @oper.check(padre,nil)
+
+		if tipo == "Not_Modify"
+			tipo = "int"
+		end
+
+		if tipo != "bool"
+			error = ErrOpUnaria.new(tipo,"!","bool",@oper.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "bool"
+	end
+end
+
+class OpUMINUS
+
+	def check(padre,tipo=nil)
+
+		tipo = @oper.check(padre,nil)
+
+
+		if tipo == "Not_Modify"
+			tipo = "int"
+		end
+
+		if tipo != "int"
+			error = ErrOpUnaria.new(tipo,"- (UMINUS)","int",@oper.pos())
+			puts error.Error_to_s
+			exit()
+		end
+		
+		return "int"
+	end
+end	
+
+class Literal
+	
+	def check(padre=nil,tipo=nil)
+		return @tipo.to_s()
+	end
+end				
+
 
 
 

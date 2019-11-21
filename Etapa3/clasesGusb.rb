@@ -10,7 +10,6 @@
 # -- Clase Programa --
 #
 # Representa el nodo de la estructura principal programa
-$type = nil
 $array_type = []
 
 class Programa
@@ -18,7 +17,7 @@ class Programa
 	# -- Atributos --
 	# 
 	# cuerpo : contiene el cuerpo del programa
-	attr_accessor :cuerpo , :table
+	attr_accessor :cuerpo 
 
 	def initialize(cuerpo)
 		@cuerpo = cuerpo
@@ -134,9 +133,6 @@ class Decla_Tipo
 		@identificador = identificador
 		@l_identificadores = l_identificadores
 		@tipo = tipo
-		if tipo != nil
-			$type = tipo
-		end	
 	end	
 
 	def to_s(tab)
@@ -149,6 +145,17 @@ class Decla_Tipo
 		return s
 
 	end
+	def get_tipo()
+		if @l_identificadores != nil
+			@l_identificadores.get_tipo()
+		else
+			return @tipo
+		end	
+	end
+
+	def get_modo()
+		return "tipo"
+	end			
 end
 
 class Decla_Card
@@ -160,14 +167,9 @@ class Decla_Card
 		@identificador2 = identificador2
 		@tipo1 = tipo1
 		@tipo2 = tipo2
+		@array_type = []
 		@l_identificadores = l_identificadores
-		if l_identificadores != nil
-			$array_type << tipo1
-		else
-			$array_type << tipo1
-			$array_type << tipo2	
-		end
-
+		
 	end
 	
 	def to_s(tab)
@@ -178,6 +180,23 @@ class Decla_Card
 			s << @identificador1.to_s(tab+1) + @identificador2.to_s(tab+1)
 		end
 	end
+
+	def get_array_type(array)
+		
+		if @l_identificadores != nil
+			array << @tipo1
+			@l_identificadores.get_array_type(array)
+		else
+			array << @tipo1
+			array << @tipo2	
+		end
+		return array
+
+	end	
+
+	def get_modo()
+		return "card"
+	end	
 end
 
 
@@ -432,8 +451,9 @@ class IteradorFor
 
 	# -- Funcion de impresion --
 	def to_s(tab)
+		c = @for_table.printTable(tab+2)
 		s = (" "*tab) + "For\n"
-		s << (" "*(tab+1)) + "In\n" + @id.to_s(tab+2) +(" "*(tab+2))+"Exp\n" + @exp1.to_s(tab+3) +(" "*(tab+2))+"Exp\n" + @exp2.to_s(tab+3) + @cuerpo.to_s(tab+1)
+		s << (" "*(tab+1)) + "In\n" + @id.to_s(tab+2) +(" "*(tab+2))+"Exp\n" + @exp1.to_s(tab+3) +(" "*(tab+2))+"Exp\n" + @exp2.to_s(tab+3) +(" "*(tab+1))+"Block\n" + c + "\n" + @cuerpo.l_instrucciones.to_s(tab+2)
 		return s
 	end
 
@@ -690,118 +710,123 @@ class ExpresionBinaria
 
 	attr_accessor :oper1, :op, :oper2
 
-	def initialize(oper1,op,oper2)
+	def initialize(oper1,op,oper2,op_print)
 		@oper1 = oper1
 		@op = op
 		@oper2 = oper2
+		@op_print = op_print
 	end
 
 	def to_s(tab) 
-		return (" "*tab) + @op.to_s + "\n" + @oper1.to_s(tab+1) + @oper2.to_s(tab+1)
+		return (" "*tab) + @op_print.to_s() + "\n" + @oper1.to_s(tab+1) + @oper2.to_s(tab+1)
 	end
+
+	def pos()
+    	return @op.position()
+  	end
 
 end
 
 class OpSuma < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Plus",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Plus")
 	end
 
 end
 
 class OpResta < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Minus",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Minus")
 	end
 
 end
 
 class OpMultiplicacion < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Mult",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Mult")
 	end
 
 end
 
 class OpDivisionE < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Div",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Div")
 	end
 
 end
 
 class OpModE < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Mod",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Mod")
 	end
 
 end
 
 class OpEquivalente < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Equal",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Equal")
 	end
 
 end
 
 class OpDesigual < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Nequal",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Nequal")
 	end
 
 end
 
 class OpMayorIgual < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Geq",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Geq")
 	end
 
 end
 
 class OpMenorIgual < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Leq",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Leq")
 	end
 
 end
 
 class OpMenor < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Less",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Less")
 	end
 
 end
 
 class OpMayor < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Greater",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Greater")
 	end
 
 end
 
 class OpAnd < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"And",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"And")
 	end
 
 end
 
 class OpOr < ExpresionBinaria
 
-	def initialize(oper1,oper2)
-		super(oper1,"Or",oper2)
+	def initialize(oper1,op,oper2)
+		super(oper1,op,oper2,"Or")
 	end
 
 end
@@ -814,14 +839,15 @@ class ExpresionUnaria
 	# oper : operando
 	attr_accessor :op, :oper
 
-	def initialize(op,oper)
+	def initialize(op,oper,op_print)
 		@op = op
 		@oper = oper
+		@op_print = op_print
 	end
 
 	# -- Funcion de impresion --
 	def to_s(tab) 
-		return (" "*tab) + @op.to_s() +"\n"+ @oper.to_s(tab+1)  
+		return (" "*tab) + @op_print.to_s() +"\n"+ @oper.to_s(tab+1)  
 	end
 
 	def pos()
@@ -832,16 +858,16 @@ end
 
 class OpExclamacion < ExpresionUnaria
 
-	def initialize(op)
-		super("Not",op)
+	def initialize(op,oper)
+		super(op,oper,"Not")
 	end
 
 end
 
 class OpUMINUS < ExpresionUnaria
 
-	def initialize(op)
-		super("Uminus",op)
+	def initialize(op,oper)
+		super(op,oper,"Uminus")
 	end
 
 end

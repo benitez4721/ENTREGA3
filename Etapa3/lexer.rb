@@ -266,7 +266,7 @@ class Lexer
 			if token.tipo == "TkNum" || token.tipo == "TkId" || token.tipo == "TkString" 
 				@parserTk << [token.tipo,token]
 			else
-				@parserTk << [token.token,token]
+				@parserTk << [token.tipo,token]
 			end
 		end
 	end
