@@ -316,7 +316,7 @@ class Identificador
 
 		if tipo != nil
 
-			if not padre.ExistKey(@id.to_s())
+			if not padre.ExistKey(@id.to_s()) 
 				if tipo.tipo == "int"
 					valor = [tipo.value(),0]
 				
@@ -390,18 +390,18 @@ class Asignacion
 	def check(padre)
 		
 		x = 0
-		exp_length = @expresion.length(x)
 		tipo_id = @identificador.check(padre,nil)
-		tipo_exp = @expresion.check(padre,nil,exp_length,tipo_id)
-		if tipo_exp != "int" && tipo_exp != "bool" && exp_length == 1 &&  tipo_id != "int" && tipo_id != "bool"
-			return nil
-		end		
-
 		if tipo_id == "Not_Modify"
 			error = ErrModifyIter.new(@identificador.id.to_s(),@identificador.pos(),":=")
 			puts error.Error_to_s
 			exit()
 		end
+		exp_length = @expresion.length(x)
+		tipo_exp = @expresion.check(padre,nil,exp_length,tipo_id)
+		if tipo_exp != "int" && tipo_exp != "bool" && exp_length == 1 &&  tipo_id != "int" && tipo_id != "bool"
+			return nil
+		end		
+
 
 		if (tipo_id == "int" || tipo_id == "bool") && exp_length > 1
 			error = ErrTipoArrayIni.new(tipo_id,@identificador.pos())
@@ -537,11 +537,12 @@ end
 class IteradorFor
 
 	def check(padre,tipo=nil)
-
+		@iterator_table = STable.new()
+		@iterator_table.insert("T_Padre",padre)
+		@iterator_table.insert(@id.id.to_s(),["Not_Modify",0])
 		@for_table = STable.new()
-		@for_table.insert("T_Padre",padre)
-
-		@for_table.insert(@id.id.to_s(),["Not_Modify",0])
+		@for_table.insert("T_Padre",@iterator_table)
+	
 
 		exp1_tipo = @exp1.check(padre,nil)
 		exp2_tipo = @exp2.check(padre,nil)

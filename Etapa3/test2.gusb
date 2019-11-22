@@ -37,7 +37,7 @@
   fi; 
  
   i := 3;   
-  do i < 10 -->     
+  do i < true -->     
 	|[       
 		read i;       
 		print "Still here!";       
