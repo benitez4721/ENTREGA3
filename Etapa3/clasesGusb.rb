@@ -187,10 +187,10 @@ class Decla_Card
 			array << @tipo1
 			@l_identificadores.get_array_type(array)
 		else
-			array << @tipo1
-			array << @tipo2	
+			array << @tipo2
+			array << @tipo1	
+			return array
 		end
-		return array
 
 	end	
 
@@ -572,6 +572,10 @@ class ArrayAsig
 			return (" "*tab) +"ArrayAsig\n" + @listArrayAsig.to_s(tab+1,@identificador)
 		end	
 	end
+
+	def pos()
+		return @identificador.pos()
+	end	
 end	
 
 # -- Clase ArrayConsult --
@@ -626,12 +630,14 @@ end
 
 #--Clase Tipo--
 class Tipo
-	attr_accessor :tipo, :num1, :num2
+	attr_accessor :tipo, :num1, :num2, :signo1, :signo2
 
-	def initialize(tipo,num1,num2)
+	def initialize(tipo,signo1,num1,signo2,num2)
 		@tipo = tipo
 		@num1 = num1
 		@num2 = num2
+		@signo1 = signo1
+		@signo2 = signo2
 	end
 	
 	def to_s(tab)
@@ -642,34 +648,70 @@ class Tipo
 		if num1 == nil
 			return @tipo.to_s()
 		else
-			return @tipo.to_s() + "[" + num1.valor.to_s() + ".." + num2.valor.to_s() + "]"
+			if signo1 != nil
+				if signo2 != nil
+					return @tipo.to_s() + "[" + "-"+ @num1.valor.to_s() + ".." + "-" + @num2.valor.to_s() + "]"
+				else
+					return @tipo.to_s() + "[" + "-"+ num1.valor.to_s() + ".." + @num2.valor.to_s() + "]"
+				end
+			elsif signo2 != nil
+				return @tipo.to_s() + "[" + @num1.valor.to_s() + ".." + "-" + @num2.valor.to_s() + "]" 			
+			else
+				return @tipo.to_s() + "[" + @num1.valor.to_s() + ".." + @num2.valor.to_s() + "]"
+			end
 		end	
 	end
 	def size()
 		if num1 != nil
-			return @num2.valor.to_s().to_i()-@num1.valor.to_s().to_i()
+			if signo1 != nil
+				if signo2 != nil
+					return -@num2.valor.to_s().to_i()+@num1.valor.to_s().to_i()
+				else
+					return @num2.valor.to_s().to_i()+@num1.valor.to_s().to_i()
+				end
+			elsif signo2 != nil
+				return -@num2.valor.to_s().to_i()+@num1.valor.to_s().to_i()
+			else
+				return @num2.valor.to_s().to_i()-@num1.valor.to_s().to_i()	
+			end
 		end	
-	end	
+	end
+	def valido()
+		if num1 != nil
+			if signo1 != nil
+				if signo2 != nil
+					return @num1.valor.to_s().to_i() >= @num2.valor.to_s().to_i()
+				else
+					return true
+				end
+			elsif signo2 != nil
+				return false
+			else
+				return @num1.valor.to_s().to_i() <= @num2.valor.to_s().to_i()
+			end
+		end
+	end		
+
 end
 
 class TipoNum < Tipo
 
 	def initialize(tipo)
-		super(tipo,nil,nil)
+		super(tipo,nil,nil,nil,nil)
 	end
 end
 
 class TipoBool < Tipo
 
 	def initialize(tipo)
-		super(tipo,nil,nil)
+		super(tipo,nil,nil,nil,nil)
 	end
 end
 
 class TipoArray < Tipo
 
-	def initialize(tipo,num1,num2)
-		super(tipo,num1,num2)
+	def initialize(tipo,signo1,num1,signo2,num2)
+		super(tipo,signo1,num1,signo2,num2)
 	end
 	
 

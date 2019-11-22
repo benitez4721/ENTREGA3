@@ -216,7 +216,20 @@ class ErrCardinalidadArray
 	def Error_to_s()
 		return "Error Fila #{@pos[0]} Columna #{@pos[1]}: El numero de asignaciones debe ser igual a la longitud del arreglo"
 	end
-end						
+end
+
+class ErrInvalidArray
+	
+	def initialize(pos)
+		@pos = pos
+		$Error = true
+	end
+	
+	def Error_to_s()
+		return "Error Fila #{@pos[0]} Columna #{@pos[1]}: Rango de arreglo invalido"
+	end
+end
+
 
 class Programa
 
@@ -310,6 +323,11 @@ class Identificador
 				elsif tipo.tipo == "bool"
 					valor = [tipo.value(),false]
 				else tipo.tipo == "array"
+					if tipo.valido == false
+						error = ErrInvalidArray.new(tipo.tipo.position())
+						puts error.Error_to_s()
+						exit()
+					end	
 					valor = [tipo.value(),tipo.size()]	
 				end
 				padre.insert(@id.to_s(),valor)
@@ -375,6 +393,9 @@ class Asignacion
 		exp_length = @expresion.length(x)
 		tipo_id = @identificador.check(padre,nil)
 		tipo_exp = @expresion.check(padre,nil,exp_length)
+		if tipo_exp != "int" && tipo_exp != "bool" && exp_length == 1
+			return nil
+		end		
 
 		if tipo_id == "Not_Modify"
 			error = ErrModifyIter.new(@identificador.id.to_s(),@identificador.pos(),":=")
@@ -412,6 +433,11 @@ class ArrayIni
 	def check(padre,tipo=nil,exp_length)
 		if exp_length == 1
 			exp_tipo = @exp.check(padre,nil)
+			if exp_tipo == "bool"
+				error = ErrArrayAsig.new(exp_tipo,@exp.pos())
+				puts error.Error_to_s
+				exit()
+			end	
 			return exp_tipo
 		else	
 			if @lista_exp != nil
@@ -1056,6 +1082,10 @@ class ArrayConsult
 
 		exp = @exp.check(padre,nil)
 
+		if exp == "Not_Modify"
+			exp = "int"
+		end
+		
 		if exp != "int"
 			error = ErrExpConsult.new(exp,@exp.pos())
 			puts error.Error_to_s()
@@ -1080,6 +1110,11 @@ class ArrayAsig
 		consulta = @listArrayAsig.get_consult()
 		if consulta != nil
 			consulta_tipo = consulta.check(padre,nil)
+
+			if consulta_tipo == "Not_Modify"
+				consulta_tipo = "int"
+			end
+
 			if consulta_tipo != "int"
 				error = ErrExpConsult.new(consulta_tipo,consulta.pos())
 				puts error.Error_to_s()
@@ -1100,6 +1135,15 @@ class ListArrayAsig
 		if @lista_exp != nil
 			exp1_tipo = @exp1.check(padre,nil)
 			exp2_tipo = @exp2.check(padre,nil)
+
+			if exp1_tipo == "Not_Modify"
+				exp1_tipo = "int"
+			end
+
+			if exp2_tipo == "Not_Modify"
+				exp2_tipo = "int"
+			end
+
 			if exp1_tipo != "int"
 				error = ErrExpConsult.new(exp1_tipo,@exp1.pos())
 				puts error.Error_to_s()
@@ -1115,6 +1159,15 @@ class ListArrayAsig
 		else
 			exp1_tipo = @exp1.check(padre,nil)
 			exp2_tipo = @exp2.check(padre,nil)
+
+			if exp1_tipo == "Not_Modify"
+				exp1_tipo = "int"
+			end
+
+			if exp2_tipo == "Not_Modify"
+				exp2_tipo = "int"
+			end
+
 			if exp1_tipo != "int"
 				error = ErrExpConsult.new(exp1_tipo,@exp1.pos())
 				puts error.Error_to_s()

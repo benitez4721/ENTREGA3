@@ -77,7 +77,10 @@ class ParserGusb
 	TIPO
 		: 'Tkint' 		{ result = TipoNum.new(val[0]) }
 		| 'Tkbool'    	{ result = TipoBool.new(val[0])  }
-		| 'Tkarray' 'Tk0Bracket' LITERAL_NUMERO 'TkSoForth' LITERAL_NUMERO 'TkCBracket'	{ result = TipoArray.new(val[0],val[2],val[4]) }
+		| 'Tkarray' 'Tk0Bracket' 'TkMinus' LITERAL_NUMERO 'TkSoForth' LITERAL_NUMERO 'TkCBracket'	{ result = TipoArray.new(val[0],val[2],val[3],nil,val[5]) }
+		| 'Tkarray' 'Tk0Bracket' 'TkMinus' LITERAL_NUMERO 'TkSoForth' 'TkMinus' LITERAL_NUMERO 'TkCBracket'	{ result = TipoArray.new(val[0],val[2],val[3],val[5],val[6]) }
+		| 'Tkarray' 'Tk0Bracket' LITERAL_NUMERO 'TkSoForth' 'TkMinus' LITERAL_NUMERO 'TkCBracket'	{ result = TipoArray.new(val[0],nil,val[2],val[4],val[5]) }
+		| 'Tkarray' 'Tk0Bracket' LITERAL_NUMERO 'TkSoForth' LITERAL_NUMERO 'TkCBracket'	{ result = TipoArray.new(val[0],nil,val[2],nil,val[4]) }
 		;
 
 	# Reglas para reconocer asignaciones
