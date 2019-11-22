@@ -63,15 +63,16 @@ class ParserGusb
 		: DECLA_CARD	{ result = val[0] }
 		| DECLA_TIPO 	{ result = val[0] }
 		;
+	# Reglas para reconocer una declaracion de varias variables especificando un tipo para cada una	
 	DECLA_CARD
 		: IDENTIFICADOR 'TkComma' DECLA_CARD 'TkComma' TIPO  			{result = Decla_Card.new(val[0],nil,val[4],nil,val[2])}
 		| IDENTIFICADOR 'TkComma' IDENTIFICADOR 'TkTwoPoints' TIPO 'TkComma' TIPO {result = Decla_Card.new(val[0],val[2],val[4],val[6],nil)}
 		;
+	# Reglas par reconocer una declaracion de varias variables especificando un solo tipo para cada una de ellas	
 	DECLA_TIPO
 		: IDENTIFICADOR 'TkTwoPoints' TIPO 		{result = Decla_Tipo.new(val[0],nil,val[2])}
 		| IDENTIFICADOR 'TkComma' DECLA_TIPO  {result = Decla_Tipo.new(val[0],val[2],nil)}
 		;
-	# Reglas para reconocer una lista de tipos
 
 	# Reglas para reconocer un tipo
 	TIPO
@@ -90,12 +91,6 @@ class ParserGusb
 	ARRAY_INI
 		: EXPRESION	'TkComma' ARRAY_INI {result = ArrayIni.new(val[0],val[2])}
 		| EXPRESION 					{result = ArrayIni.new(val[0],nil)}
-		;
-
-	# Reglas para reconocer una lista de identificadores
-	#LISTA_IDENTIFICADOR
-	#	: IDENTIFICADOR									{ result = ListaId.new(nil, val[0]) }
-	#	| LISTA_IDENTIFICADOR ',' IDENTIFICADOR 		{ result = ListaId.new(val[0], val[2]) }
 		;
 
 	# Regla para reconocer un identificador
@@ -131,17 +126,19 @@ class ParserGusb
 		| EXPRESION'TkGreater' EXPRESION   	 { result = OpMayor.new(val[0], val[1], val[2]) }
 		;
 
+	#Reglas para reconocer un literal
 	LITERAL
 		: LITERAL_NUMERO
 		| LITERAL_BOOLEANO
 		;	
 	
 
-	#Reglas para reconoces expresiones de arreglos
+	#Reglas para reconocer una consulta de arreglo
 	EXP_ARRAY
 		: IDENTIFICADOR 'Tk0Bracket' EXPRESION 'TkCBracket' {result = ArrayConsult.new(val[0],val[2])}
 		;
 
+	#Reglas para reconocer una asignacion de arreglos
 	EXP_ARRAY_REC
 		: 'TkOpenPar' EXPRESION 'TkTwoPoints' EXPRESION 'TkClosePar' EXP_ARRAY_REC	{result = ListArrayAsig.new(nil,val[1],val[3],val[5],nil)}
 		| 'TkOpenPar' EXPRESION 'TkTwoPoints' EXPRESION 'TkClosePar' 				{result = ListArrayAsig.new(nil,val[1],val[3],nil,nil)}

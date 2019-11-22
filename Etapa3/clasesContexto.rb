@@ -1,44 +1,70 @@
+# Autores: Marco Benitez 13-10137
+#          Orlando Chaparro 12-11499
+#
+#--Descripcion--
+# Archivo que contiene todas las estructuras y 
+# funciones para reconocer los errores de contexto del lenguaje Guardusb
+
+
+
 require_relative 'clasesGusb'
 require_relative 'lexer'
 require_relative 'SymbolTable'
 
-
+#Variable de control para indicarle al main si existe un error de contexto
 $Error = false
 
 	
 
-#--Clases de Estructuras--
+#---Clases Errores de Contexto --
 
+#--Clase ErrDeclaracion--
+# Representa un error en el que una variable ya ha sido declarada.
 class ErrDeclaracion 
 
+	#--Atributos--
+	# tk: contiene una variable
+	# fila: contiene un numero de fila
+	# column: contiene un numero de columna
 	def initialize(tk,fila,column)
 		@tk = tk
 		@fila = fila
 		@column = column
 		$Error = true
 	end	
-
+	#Funcion de impresion	
 	def Error_to_s
 		return "Error Fila #{@fila} Columna #{@column}: La variable '#{@tk}' ya ha sido declarada."
 	end	
 end	
 
+#--Clase ErrNdeclare--
+#Representa un error en el que una variable no ha sido declarada.
 class ErrNDeclare
 
+	#--Atributos--
+	# tk: contiene una variable
+	# fila: contiene un numero de fila
+	# column: contiene un numero de columna
 	def initialize(tk,fila,column)
 		@tk = tk
 		@fila = fila
 		@column = column
 		$Error = true
 	end	
-
+	#Funcion de impresion
 	def Error_to_s
 		return "Error Fila #{@fila} Columna #{@column}: Variable #{@tk} no ha sido declarada"
 	end	
 end
 
-class ErrAsignacion 
+class ErrAsignacion
 
+	#--Atributos--
+	# tipo_id: contiene el tipo de la variable a modificar
+	# tipo_asig: contiene el tipo de la asignacion
+	# fila: contiene un numero de fila
+	# column: contine un numero de columna
 	def initialize(tipo_id,tipo_asig,fila,column)
 		@tipo_id = tipo_id
 		@tipo_asig = tipo_asig
@@ -46,14 +72,21 @@ class ErrAsignacion
 		@column = column
 		$Error = true
 	end	
-
+	#Funcion de impresion	
 	def Error_to_s
 		return "Error Fila #{@fila} Columna #{@column}: Asignacion de tipo '#{@tipo_asig}' a variable de tipo '#{@tipo_id}' ."
 	end	
 end	
 
+#--Clase ErrOpBinaria--
+#Representa un error en el que se intenta realizar una operacion binaria con tipos de operandos incorrectos
 class ErrOpBinaria
 
+	#--Atributos--
+	# tipo_operando: contiene el tipo de un operando
+	# operador: contiene un operador
+	# tipo_operador: contiene el tipo de un operador
+	# pos: contiene una posicion
 	def initialize(tipo_operando,operador,tipo_operador,pos)
 		@tipo_operando = tipo_operando
 		@operador = operador
@@ -61,14 +94,23 @@ class ErrOpBinaria
 		@pos = pos
 		$Error = true
 	end
-	
+	#Funcion de impresion
 	def Error_to_s()
 		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}:Operando de tipo '#{@tipo_operando}', debe ser de tipo '#{@tipo_operador}' para la operacion '#{@operador.to_s()}' "
 	end	
 end
 
+#--Clase ErrTipoOpBinaria--
+#Representa un error en el que los operandos para una operacion binaria son distintos
 class ErrTipoOpBinaria
 
+	#--Atributos--
+	# operando1: contiene el primer operador
+	# tipo_operando1 : contiene el tipo del primer operador
+	# operando2 : contiene el tipo del segundo operando
+	# tipo_operando2 : contiene el tipo del segundo operando
+	# operador : contiene el tipo del operador
+	# pos: contiene una posicion
 	def initialize(operando1,tipo_operando1,operando2,tipo_operando2,operador,pos)
 		@operando1 = operando1
 		@tipo_operando1 = tipo_operando1
@@ -78,14 +120,21 @@ class ErrTipoOpBinaria
 		@pos = pos
 		$Error = true
 	end
-	
+	#Funcion de impresion
 	def Error_to_s()
 		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}: Operacion invalida '#{@operador.to_s()}', los operandos  deben ser del mismo tipo"
 	end
 end
 
+#--Clase ErrOpUnaria--
+#Representa un error en el cual se realiza una operacion unaria a una expresion de tipo incorrecto
 class ErrOpUnaria
 
+	#--Atributos--
+	# tipo_operando: contiene el tipo de un operando
+	# operador: contiene un operador
+	# tipo_operador: contiene el tipo de un operador
+	# pos: contiene una posicion
 	def initialize(tipo_operando,operador,tipo_operador,pos)
 		@tipo_operando = tipo_operando
 		@operador = operador
@@ -93,95 +142,133 @@ class ErrOpUnaria
 		@pos = pos
 		$Error = true
 	end
-	
+	#Funcion de impresion
 	def Error_to_s()
 		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}:Operando de tipo '#{@tipo_operando}', debe ser de tipo '#{@tipo_operador}' para la operacion '#{@operador.to_s()}' "	
 	end
 end
 
+#--Clase ErrCondicional--
+#Representa un error en el cual un condicional no es de tipo booleano
 class ErrCondicional
 
+	#--Atributos--
+	# tipo_cond: contiene el tipo de un condicional	
+	# pos: contiene una posicion
 	def initialize(tipo_cond,pos)
 		@tipo_cond = tipo_cond
 		@pos = pos
 		$Error = true
 	end
-	
+	#Funcion de impresion
 	def Error_to_s()
 		return "Error Fila #{@pos[0]} Columna #{@pos[1]}: Condicional de tipo '#{@tipo_cond}', debe ser de tipo 'bool'"
 	end
 end
 
+#--Clase ErrExpFor
+#Representa un error en el cual una expresion que especifica el rango del iterador en el ciclo for no es de tipo entero
 class ErrExpFor
 
+	#--Atributos--
+	#exp_tipo: contiene el tipo de una expresion
+	#pos: contiene una posicion 
 	def initialize(exp_tipo,pos)
 		@exp_tipo = exp_tipo
 		@pos = pos
 		$Error = true
 	end
-	
+	#Funcion de impresion
 	def Error_to_s()
 		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}: Expresion de tipo '#{@exp_tipo}', debe ser de tipo 'int' "		
 	end
 end	
 
+#Class ErrModifyIter
+#Representa un error en el cual se intenta modificar una variable de iteracion
 class ErrModifyIter
 
+	#--Atributos--
+	# id: contiene una variable de iteracion
+	# pos: contiene una posicion
+	# inst: contiene una instruccion
 	def initialize(id,pos,inst)
 		@id = id
 		@pos = pos
 		@inst = inst
 		$Error = true
 	end
-	
+	#Funcion de impresion
 	def Error_to_s()	
 		"Error Fila #{@pos[0]} Columna #{@pos[1]}: Instruccion '#{@inst}' invalida, se intento modificar la variable de iteracion '#{@id}'"
 	end
 end
 
+#Class ErrTipoConversion
+#Representa un error en el cual para una funcion de conversion no se recibe como argumento un arreglo
 class ErrTipoConversion
 
+	#--Atributos--
+	# fun: contiene una funcion de conversion
+	# tipo: contiene el tipo del argumento
+	# pos: contiene una posicion
 	def initialize(fun,tipo,pos)
 		@fun = fun
 		@pos = pos
 		@tipo = tipo
 		$Error = true
 	end
-
+	#Funcion de impresion
 	def Error_to_s()
-		"Error Fila #{@pos[0]} Columna #{@pos[1]}: Argunmento invalido para la funcion '#{@fun}', se esperaba un 'array' y se recibio un 'int'"
+		"Error Fila #{@pos[0]} Columna #{@pos[1]}: Argunmento invalido para la funcion '#{@fun}', se esperaba un 'array' y se recibio un '#{@tipo}'"
 	end	
 end
 
+#Class ErrTipoArrayConsult
+#Representa un error en el cual se intenta realizar una consulta de arreglo a una variable que no es un arreglo
 class ErrTipoArrayConsult
 
+	#--Atributos--
+	# id: contiene una variable
+	# pos: contiene una posicion
+	# tipo: contiene el tipo de una variable
 	def initialize(id,tipo,pos)
 		@id = id
 		@pos = pos
 		@tipo = tipo
 		$Error = true
 	end	
-
+	#Funcion de impresion
 	def Error_to_s()
 		"Error Fila #{@pos[0]} Columna #{@pos[1]}: La variable '#{@id}' es de tipo '#{@tipo}' , debe ser de tipo 'array'."
 	end
-end	
+end
 
+#--Class ErrExpConsult--
+#Representa un error en el cual se intenta representar el indice de un arreglo con una expresion que no es de tipo entero
 class ErrExpConsult
 
+	#--Atributos--
+	# exp_tipo: contiene el tipo de una expresion
+	# pos: contiene una posicion
 	def initialize(exp_tipo,pos)
 		@exp_tipo = exp_tipo
 		@pos = pos
 		$Error = true
 	end
-	
+	#Funcion de impresion
 	def Error_to_s()
 		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}: Expresion de tipo '#{@exp_tipo}', indice de un arreglo debe ser de tipo 'int' "		
 	end
 end
 
+#--Class ErrArrayAsig--
+#Representa un error en el cual se intenta inicializar un arreglo con valores que no son enteros
 class ErrArrayAsig
 
+	#--Atributos--
+	# exp_tipo: contiene el tipo de una expresion
+	# pos: contiene una posicion
 	def initialize(exp_tipo,pos)
 		@exp_tipo = exp_tipo
 		@pos = pos
@@ -193,21 +280,30 @@ class ErrArrayAsig
 	end
 end
 
+#--Class ErrTipoArrayIni--
+#Representa un error en el cual se intenta realizar una inicializacion de un arreglo a una variable que no es un arreglo
 class ErrTipoArrayIni
 	
+	#--Atributos--
+	# exp_tipo: contiene el tipo de una expresion
+	# pos: contiene una posicion
 	def initialize(exp_tipo,pos)
 		@exp_tipo = exp_tipo
 		@pos = pos
 		$Error = true
 	end
-	
+	#Funcion de impresion
 	def Error_to_s()
 		return 	"Error Fila #{@pos[0]} Columna #{@pos[1]}: Se intento realizar una inicializacion de arreglo a una varibale de tipo '#{@exp_tipo}'. "		
 	end
 end	
 
+#--Class ErrCardinalidadArray--
+#Representa un error en el la cardinalidad de la inicializacion de un arreglo es distinta a la longitud del arreglo
 class ErrCardinalidadArray
 	
+	#--Atributos--
+	# pos: contiene una posicion
 	def initialize(pos)
 		@pos = pos
 		$Error = true
@@ -217,79 +313,112 @@ class ErrCardinalidadArray
 		return "Error Fila #{@pos[0]} Columna #{@pos[1]}: El numero de asignaciones debe ser igual a la longitud del arreglo"
 	end
 end
-
+#--Class ErrInvalidArray--
+#Representa un error en el cual para el rango de un arreglo [M..N] se tiene que M > N
 class ErrInvalidArray
-	
+	#--Atributos--
+	# pos: contiene una posicion
 	def initialize(pos)
 		@pos = pos
 		$Error = true
 	end
-	
+	#Funcion de impresion
 	def Error_to_s()
 		return "Error Fila #{@pos[0]} Columna #{@pos[1]}: Rango de arreglo invalido"
 	end
 end
 
 
+#---CLASES DE ESTRUCTURAS--
+
+#--Class Programa
 class Programa
 
+	#Funcion para identificar errores de contexto de un programa	
 	def check()
 
 		if @cuerpo != nil
+			#Revisamos errores en el cuerpo
 			@cuerpo.check(nil)
 		end
 	end
 end
 
+#Class Cuerpo
 class Cuerpo
-
+	
+	#Funcion para identificar errores de contexto de un cuerpo
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+		#Creamos la tabla de simbolos
 		@table = STable.new()
-
+		#Si no estamos en el cuerpo principal del programa referenciamos a la tabla padre inmediata
 		if padre != nil
 			@table.insert("T_Padre",padre)
-
+		#Estamos en el cuerpo principal del programa por lo tanto no existe una referencia a padre		
 		else
 			@table.insert("T_Padre",nil)
 		end
 		
 		if @l_declaraciones != nil
+			#Revisamos los errores en las declaraciones
 			@l_declaraciones.check(@table)
 		end
 		
 		if @l_instrucciones != nil
+			#Revisamos los errores en las instrucciones
 			@l_instrucciones.check(@table)
 		end
 	end
 end
 
+#--Class ListaDeclaracion--
 class ListaDeclaracion
-
+	#Funcion para identificar errores de contexto de las declaraciones
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
 	def check(padre)
 
 		if @l_declaraciones != nil
+			#Seguimos revisando las declaraciones
 			@l_declaraciones.check(padre)
 		end
 
+		# Identificamos el tipo/modo de una declaracion
 		if @declaracion.get_modo == "card"
 			arreglo = []
+			#Calculamos un arreglo que contiene los tipos de las declaraciones
 			array = @declaracion.get_array_type(arreglo).reverse
+			#Revisamos errores en una declaracion
 			@declaracion.check(padre,nil,0,array)
 		else
+			#Revisamos errores en una declaracion
 			@declaracion.check(padre,nil,0)
 		end			
 	end
 	
 end
 
+#--Class Decla_Card--
 class Decla_Card
 
+	#Funcion para identificar errores de contexto de una declaracion de tipo cardinalidad(Aquella con varios identificadores y varios tipos)
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
+	#i: variable de iteracion utilizada para recorrer el arreglo de tipos
+	#array: contiene un arreglo de tipos
 	def check(padre,tipo,i,array)
 	
 		if @l_identificadores != nil
+			#Revisamos errores en un identificador
 			@identificador1.check(padre,array[i])
+			#Seguimos revisando los identificadores
 			@l_identificadores.check(padre,nil,i+1,array)
 		else
+			#Revisamos errores en los dos identificadores restantes
 			@identificador1.check(padre,array[i])
 			@identificador2.check(padre,array[i+1])
 		end
@@ -297,25 +426,40 @@ class Decla_Card
 	end
 end				 
 
+#--Class Decla_Tipo--
 class Decla_Tipo
-
+	#Funcion para identificar errores de contexto de una declaracion de modo tipo(Aquella con varios identificadores con un solo tipo)
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo,i=nil)
+		#Buscamos el tipo de la declaracion
 		tip = get_tipo()
 		if @l_identificadores != nil
+			#Revisamos errores en un identificador
 			@identificador.check(padre,tip)
+			#Seguimos revisando los identificadores
 			@l_identificadores.check(padre,nil)
 		else
+			#Revisamos errores en un identificador
 			@identificador.check(padre,tip)
 		end	
 	end
 end
 
+#--Class Identificador--
 class Identificador
 
+	#Funcion para identificar errores de contexto de un cuerpo
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: contiene el tipo del identificador a verificar
 	def	check(padre,tipo)
 
+		#Venimos de una declaracion
 		if tipo != nil
 
+			#La variable no esta en la tabla de simbolo entonces la insertamos
 			if not padre.ExistKey(@id.to_s()) 
 				if tipo.tipo == "int"
 					valor = [tipo.value(),0]
@@ -323,6 +467,7 @@ class Identificador
 				elsif tipo.tipo == "bool"
 					valor = [tipo.value(),false]
 				else tipo.tipo == "array"
+					#Verificamos que el rango del arreglo sea valido
 					if tipo.valido == false
 						error = ErrInvalidArray.new(tipo.tipo.position())
 						puts error.Error_to_s()
@@ -330,16 +475,21 @@ class Identificador
 					end	
 					valor = [tipo.value(),tipo.size()]	
 				end
+				#Insertamos la variable en la tabla de simbolo
 				padre.insert(@id.to_s(),valor)
+				#Retornamos el tipo de la variable
 				return tipo.tipo
+
+			#La variable ya ha sido declarada anteriormente	entonces reportamos un error
 			else
 				error = ErrDeclaracion.new(@id,@id.fila,@id.columna)
 				puts error.Error_to_s
 				exit()			
 			end
-		
+		#Venimos de una instruccion
 		else
-
+			#La variable no esta declarada en la la tabla de simbolos actual buscamos en todas las tablas superiores hasta encontrarla o 
+			#hasta llegar a la tabla raiz
 			if not padre.ExistKey(@id.to_s())
 				upper_table = padre.get("T_Padre")
 
@@ -349,14 +499,17 @@ class Identificador
 						upper_table = upper_table.get("T_Padre")
 
 					else
+						#La variable esta declarada entonces retornamos su tipo
 						return upper_table.get(@id.to_s())[0] 
 					end
 				end
 
+				#No encontramos la variable en ninguna tabla por lo tanto no esta declarada; reportamos un error 	
 				error = ErrNDeclare.new(@id,@id.fila,@id.columna)
 				puts error.Error_to_s
 				exit()
 
+			#La variable esta declara en la tabla de simbolos actual entonces retornamos su tipo
 			else
 				return padre.get(@id.to_s())[0] 
 			end
@@ -364,51 +517,74 @@ class Identificador
 	end
 end
 
+#--Class Instrucciones--
 class Instrucciones 
-	
+	#Funcion para identificar errores de contexto de las instrucciones
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
 	def check(padre)
 
 		if @instrucciones != nil
+			#Recorremos la lista de instrucciones
 			@instrucciones.check(padre)
 		end
 		if @instruccion != nil
-			@instruccion.check(padre) # Revisamos la instruccion.
+			#Revisamos errores en la instruccion
+			@instruccion.check(padre) 
 		end
 	end
 end
 
+#--Class Instruccion--
 class Instruccion
-
+	#Funcion para identificar errores de contexto de una Instruccion
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
 	def check(padre)
+		#Revisamos errores en una instruccion
 		@instruccion.check(padre)
 
 	end
 end
 
+#--Class Asignacion--
 class Asignacion
 
+	#Funcion para identificar errores de contexto de una Asignacion
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
 	def check(padre)
 		
 		x = 0
+		#Obtenemos el tipo de la variable a hacerle la asignacion despues de la verificacion de errores
 		tipo_id = @identificador.check(padre,nil)
+
+		#Verificamos que la variable no sea un iterador de un for
 		if tipo_id == "Not_Modify"
 			error = ErrModifyIter.new(@identificador.id.to_s(),@identificador.pos(),":=")
 			puts error.Error_to_s
 			exit()
 		end
+
+		#Obtenemos la longitud de la asignacion
 		exp_length = @expresion.length(x)
+
+		#Obtenemos el tipo de la expresion a asignar despues de la verificacion de errores
 		tipo_exp = @expresion.check(padre,nil,exp_length,tipo_id)
+
+		#Revisamos si la asignacion es un arreglo y la variable es un arreglo
 		if tipo_exp != "int" && tipo_exp != "bool" && exp_length == 1 &&  tipo_id != "int" && tipo_id != "bool"
 			return nil
 		end		
 
-
+		#Revisamos si la se esta intentanto realizar una inicializacion a una variable de tipo entero o booleana
 		if (tipo_id == "int" || tipo_id == "bool") && exp_length > 1
 			error = ErrTipoArrayIni.new(tipo_id,@identificador.pos())
 			puts error.Error_to_s()
 			exit()
 
-		elsif exp_length == 1 	 			 	
+		elsif exp_length == 1
+			#Revisamos que los tipos de la variable y la asignacion coincidan 	 			 	
 			if (tipo_id == "int" || tipo_id == "bool") && tipo_id != tipo_exp
 				error = ErrAsignacion.new(tipo_id,tipo_exp,@identificador.id.fila,@identificador.id.columna)
 				puts error.Error_to_s
@@ -418,6 +594,7 @@ class Asignacion
 		end
 
 		if tipo_id != "int" && tipo_id != "bool"
+			#Revisamos que la longitud del arreglo coincida con la longitud de la asignacion
 			if padre.get(@identificador.id.to_s())[1] != exp_length
 				error = ErrCardinalidadArray.new(@identificador.pos())
 				puts error.Error_to_s()
@@ -429,27 +606,44 @@ class Asignacion
 	end
 end
 
+#--Class ArrayIni--
 class ArrayIni
+
+	#Funcion para identificar errores de contexto de una lista de aignaciones
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
+	#exp_length: contiene la longitud de la lista de asignacion
+	#tipo_id: contiene el tipo de la variable a modificar
 	def check(padre,tipo=nil,exp_length,tipo_id)
+		#La lista de asignacion tiene un solo elemento
 		if exp_length == 1
+			#Revisamos errores en una expresion de la asignacion
 			exp_tipo = @exp.check(padre,nil)
+			#Revisamos si se esta intentando asignarle un booleano a un arreglo
 			if exp_tipo == "bool" && tipo_id != "bool" && tipo_id != "int"
 				error = ErrArrayAsig.new(exp_tipo,@exp.pos())
 				puts error.Error_to_s
 				exit()
 			end	
 			return exp_tipo
+		#La lista de asignacion tiene mas de un elemneto	
 		else	
 			if @lista_exp != nil
+				#Obtenemos el tipo de una expresion de la asignacion, despues de ser revisada
 				exp_tipo = @exp.check(padre,nil)
+				#Revisamos que el tipo de la expresion sea un entero 
 				if exp_tipo != "int"
 					error = ErrArrayAsig.new(exp_tipo,@exp.pos())
 					puts error.Error_to_s
 					exit()
 				end	
+				#Recorremos y verificamos la lista de asignaciones
 				@lista_exp.check(padre,nil,0)
 			else
+				#Obtenemos el tipo de una expresion de la asignacion, despues de ser revisada
 				exp_tipo = @exp.check(padre,nil)
+				#Revisamos que el tipo de la expresion sea un entero
 				if exp_tipo != "int"
 					error = ErrArrayAsig.new(exp_tipo,@exp.pos())
 					puts error.Error_to_s
@@ -461,45 +655,74 @@ class ArrayIni
 	end
 end		
 
+#--Class Entrada--
 class Entrada
-
+	#Funcion para identificar errores de contexto de una Entrada
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
 	def check(padre)
+		#Revisamos errores en la variable
 		@identificador.check(padre,nil)
 	end
 end	
 
+#--Class Salida--
 class Salida
 
+	#Funcion para identificar errores de contexto de una Salida
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+		#Revisamos errores en la lista de impresion
 		@l_imprimir.check(padre,nil)
 	end		
 end
 
+#--Class Imprimir--
 class Imprimir
 
+	#Funcion para identificar errores de contexto de una Impresion
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo = nil)
 
 		if @lista_impresion != nil
+			#Recorremos y revisamos la lista de impresion
 			@lista_impresion.check(padre,nil)
 		end
+		#Revisamos errores en una expresion a imprimir
 		@impresion.check(padre,nil)	
 		
 	end		
 end
 
+#--Class Str--
 class Str
 
+	#Funcion para identificar errores de contexto de un String
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre=nil,tipo=nil)
 		return @string
 	end		
 end
 
+#--Class Condicional--
 class Condicional
 
+	#Funcion para identificar errores de contexto de un Condicional
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 		
+		#Obtenemos el tipo del condicional despues de la verificacion de errores
 		cond_tipo = @condicion.check(padre,nil)
 
+		#Revisamos que el condicional sea de tipo booleano
 		if cond_tipo != "bool"
 
 			error = ErrCondicional.new(cond_tipo,@condicion.pos())
@@ -507,19 +730,28 @@ class Condicional
 			exit()
 		end
 
+		#Revisamos las instrucciones del condicional
 		@lista_instrucciones1.check(padre)
 		if @lista_instrucciones2 != nil
+			#Revisamos las guardias del condicional
 			@lista_instrucciones2.check(padre)
 		end	
 
 	end		
 end
 
+#--Class Guardia--
 class Guardia
 
+	#Funcion para identificar errores de contexto de una Guardia
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+		#Obtenemos el tipo del condicional despues de la verificacion de errores
 		cond_tipo = @condicion.check(padre,nil)
 
+		#Revisamos que el condicional sea de tipo booleano
 		if cond_tipo != "bool"
 
 			error = ErrCondicional.new(cond_tipo,@condicion.pos())
@@ -527,26 +759,36 @@ class Guardia
 			exit()
 		end
 
+		#Revisamos las instrucciones del condicional
 		@lista_instrucciones1.check(padre)
 		if @lista_instrucciones2 != nil
+			#Revisamos las guardias del condicional
 			@lista_instrucciones2.check(padre)
 		end	
 	end		
 end
 
+#--Class IteradorFor
 class IteradorFor
 
+	#Funcion para identificar errores de contexto de una Iteracion for
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+		#Creamos una tabla de simbolos donde solo guardaremos el iterador del for y le asignamos un apuntador a la tabla actual
 		@iterator_table = STable.new()
 		@iterator_table.insert("T_Padre",padre)
 		@iterator_table.insert(@id.id.to_s(),["Not_Modify",0])
+		#Creamos una tabla para el cuerpo del for y le asignamos un apuntador a la tabla donde guardamos el iterador
 		@for_table = STable.new()
 		@for_table.insert("T_Padre",@iterator_table)
 	
-
+		#Obtenemos los tipos de las expresiones que indican el rango de la variable de iteracion despues de la verificacion de errores
 		exp1_tipo = @exp1.check(padre,nil)
 		exp2_tipo = @exp2.check(padre,nil)
 
+		#Revisamos que las expresiones sean de tipo entero
 		if exp1_tipo != "int"
 			error = ErrExpFor.new(exp1_tipo,@exp1.pos())
 			puts error.Error_to_s
@@ -559,21 +801,29 @@ class IteradorFor
 		end
 
 		if @cuerpo.l_declaraciones != nil
+			#Revisamos errores en las declaraciones
 			@cuerpo.l_declaraciones.check(@for_table)
 		end
 		
 		if @cuerpo.l_instrucciones != nil
+			#Revisamos errores en las instrucciones
 			@cuerpo.l_instrucciones.check(@for_table)
 		end
 	end
 end
 
+#--Class IteratorDo--
 class IteratorDo
 
+	#Funcion para identificar errores de contexto de una Iteracion Do
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
-		
+		#Obtenemos el tipo de la condicion despues de la verificacion de errores
 		cond_tipo = @condicion.check(padre,nil)
-
+		
+		#Revisamos que la condicion sea de tipo booleana
 		if cond_tipo != "bool"
 
 			error = ErrCondicional.new(cond_tipo,@condicion.pos())
@@ -581,19 +831,28 @@ class IteratorDo
 			exit()
 		end
 
+		#Revisamos errores en las instrucciones
 		@lista_instrucciones1.check(padre)
 		if @lista_instrucciones2 != nil
+			#Revisamos errores en las guardias
 			@lista_instrucciones2.check(padre)
 		end	
 
 	end		
 end
 
+#--Class Min--
 class Min
 
+	#Funcion para identificar errores de contexto de una funcion Min
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+		#Obtenemos el tipo del identificador despues de la revision de errores
 		tipo = @identificador.check(padre,nil)
 
+		#Revisamos que la variable que recibe la funcion como argumento sea un arreglo
 		if tipo == "int" || tipo == "bool"
 			error = ErrTipoConversion.new("min()",tipo,@identificador.pos())
 			puts error.Error_to_s
@@ -604,11 +863,18 @@ class Min
 	end
 end
 
+#--Class Max--
 class Max
 
+	#Funcion para identificar errores de contexto de una Funcion Max
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+		#Obtenemos el tipo del identificador despues de la revision de errores
 		tipo = @identificador.check(padre,nil)
 
+		#Revisamos que la variable que recibe la funcion como argumento sea un arreglo
 		if tipo == "int" || tipo == "bool"
 			error = ErrTipoConversion.new("max()",tipo,@identificador.pos())
 			puts error.Error_to_s
@@ -619,11 +885,18 @@ class Max
 	end
 end
 
+#--Class Atoi--
 class Atoi
 
+	#Funcion para identificar errores de contexto de una Funcion Atoi
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+		#Obtenemos el tipo del identificador despues de la revision de errores
 		tipo = @identificador.check(padre,nil)
 
+		#Revisamos que la variable que recibe la funcion como argumento sea un arreglo
 		if tipo == "int" || tipo == "bool"
 			error = ErrTipoConversion.new("atoi()",tipo,@identificador.pos())
 			puts error.Error_to_s
@@ -636,9 +909,15 @@ end
 
 class Size
 
+	#Funcion para identificar errores de contexto de una Funcion Atoi
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+		#Obtenemos el tipo del identificador despues de la revision de errores
 		tipo = @identificador.check(padre,nil)
 
+		#Revisamos que la variable que recibe la funcion como argumento sea un arreglo
 		if tipo == "int" || tipo == "bool"
 			error = ErrTipoConversion.new("size()",tipo,@identificador.pos())
 			puts error.Error_to_s
@@ -648,15 +927,24 @@ class Size
 		return "int"
 	end
 end										
+
+
 #--- OPERACIONES BINARIAS--
 
+#--Class OpSuma--
 class OpSuma
 
+	#Funcion para identificar errores de contexto de una Suma
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -665,6 +953,7 @@ class OpSuma
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo Entero
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,"+","int",@oper1.pos())
 			puts error.Error_to_s
@@ -679,13 +968,20 @@ class OpSuma
 	end
 end
 
+#--Class OpResta--
 class OpResta
 
+	#Funcion para identificar errores de contexto de una Resta
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -694,6 +990,7 @@ class OpResta
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo Entero
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,"-","int",@oper1.pos())
 			puts error.Error_to_s
@@ -708,13 +1005,20 @@ class OpResta
 	end
 end
 
+#--Class OpMultiplicacion--
 class OpMultiplicacion
 
+	#Funcion para identificar errores de contexto de una Multiplicacion
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -723,6 +1027,7 @@ class OpMultiplicacion
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo Entero
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,"*","int",@oper1.pos())
 			puts error.Error_to_s
@@ -737,13 +1042,20 @@ class OpMultiplicacion
 	end
 end
 
+#--ClassOpDivision--
 class OpDivisionE
 
+	#Funcion para identificar errores de contexto de una Division
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos	
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -752,6 +1064,7 @@ class OpDivisionE
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo Entero
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,"/","int",@oper1.pos())
 			puts error.Error_to_s
@@ -766,13 +1079,20 @@ class OpDivisionE
 	end
 end
 
+#--Class OpModE--
 class OpModE
 
+	#Funcion para identificar errores de contexto de una operacion modulo
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -781,6 +1101,7 @@ class OpModE
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo Entero
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,"%","int",@oper1.pos())
 			puts error.Error_to_s
@@ -795,13 +1116,20 @@ class OpModE
 	end
 end
 
+#--Class OpEquivalente--
 class OpEquivalente
 
+	#Funcion para identificar errores de contexto de una Equivalencia
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -810,6 +1138,7 @@ class OpEquivalente
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean del mismo tipo
 		if tipo1 != tipo2
 			error = ErrTipoOpBinaria.new(@oper1,tipo1,@oper2,tipo2,"==",@op.position())
 			puts error.Error_to_s
@@ -820,13 +1149,20 @@ class OpEquivalente
 	end
 end
 
+#--Class OpDesigual--
 class OpDesigual
 
+	#Funcion para identificar errores de contexto de una operacion Desigual
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -835,6 +1171,7 @@ class OpDesigual
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean del mismo tipo
 		if tipo1 != tipo2
 			error = ErrTipoOpBinaria.new(@oper1,tipo1,@oper2,tipo2,"!=",@op.position())
 			puts error.Error_to_s
@@ -845,13 +1182,20 @@ class OpDesigual
 	end
 end
 
+#--Class OpMayorIgual--
 class OpMayorIgual
 
+	#Funcion para identificar errores de contexto de una operacion Mayor o igual
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -860,6 +1204,7 @@ class OpMayorIgual
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo entero
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,">=","int",@oper1.pos())
 			puts error.Error_to_s
@@ -874,13 +1219,20 @@ class OpMayorIgual
 	end
 end
 
+#--Class OpMenorIgual--
 class OpMenorIgual
 
+	#Funcion para identificar errores de contexto de una operacion Menor o igual
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -889,6 +1241,7 @@ class OpMenorIgual
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo entero
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,"<=","int",@oper1.pos())
 			puts error.Error_to_s
@@ -903,13 +1256,20 @@ class OpMenorIgual
 	end
 end
 
+#--Class OpMenor
 class OpMenor
 
+	#Funcion para identificar errores de contexto de una operacion Menor 
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -918,6 +1278,7 @@ class OpMenor
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo entero
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,"<","int",@oper1.pos())
 			puts error.Error_to_s
@@ -932,13 +1293,20 @@ class OpMenor
 	end
 end				
 
+#--Class OpMayor--
 class OpMayor
 
+	#Funcion para identificar errores de contexto de una operacion Mayor
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -947,6 +1315,7 @@ class OpMayor
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo entero
 		if tipo1 != "int"
 			error = ErrOpBinaria.new(tipo1,">","int",@oper1.pos())
 			puts error.Error_to_s
@@ -961,13 +1330,20 @@ class OpMayor
 	end
 end
 
+#--Class OpAnd--
 class OpAnd
 
+	#Funcion para identificar errores de contexto de una operacion And
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -976,6 +1352,7 @@ class OpAnd
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo booleano
 		if tipo1 != "bool"
 			error = ErrOpBinaria.new(tipo1,"/\\","bool",@oper1.pos())
 			puts error.Error_to_s
@@ -990,13 +1367,20 @@ class OpAnd
 	end
 end
 
+#--Class OpOr--
 class OpOr
 
+	#Funcion para identificar errores de contexto de una operacion Or
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
+		#Obtenemos el tipo de los operadores despues de la verificacion de errores
 		tipo1 = @oper1.check(padre,nil)
 		tipo2 = @oper2.check(padre,nil)
 
+		#Si alguno de sus operadores es un iterador for lo cambiamos a int para utilizarlos
 		if tipo1 == "Not_Modify"
 			tipo1 = "int"
 		end
@@ -1005,6 +1389,7 @@ class OpOr
 			tipo2 = "int"
 		end
 
+		#Revisamos que los operadores sean de tipo entero
 		if tipo1 != "bool"
 			error = ErrOpBinaria.new(tipo1,"\\/","bool",@oper1.pos())
 			puts error.Error_to_s
@@ -1019,19 +1404,27 @@ class OpOr
 	end
 end
 
+
 #---Operaciones Unarias---
 
 
+#--Class OpExclamacion--
 class OpExclamacion
 
+	#Funcion para identificar errores de contexto de una Negacion
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
 		tipo = @oper.check(padre,nil)
 
+		#Si el operando es un iterador for lo cambiamos a int para utilizarlos
 		if tipo == "Not_Modify"
 			tipo = "int"
 		end
 
+		#Revisamos que el operando sea de tipo booleano
 		if tipo != "bool"
 			error = ErrOpUnaria.new(tipo,"!","bool",@oper.pos())
 			puts error.Error_to_s
@@ -1042,17 +1435,23 @@ class OpExclamacion
 	end
 end
 
+#--Class OpMinus--
 class OpUMINUS
 
+	#Funcion para identificar errores de contexto de una operacion Menos unitario
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 
 		tipo = @oper.check(padre,nil)
 
-
+		#Si el operando es un iterador for lo cambiamos a int para utilizarlos
 		if tipo == "Not_Modify"
 			tipo = "int"
 		end
 
+		#Revisamos que el operando sea de tipo booleano
 		if tipo != "int"
 			error = ErrOpUnaria.new(tipo,"- (UMINUS)","int",@oper.pos())
 			puts error.Error_to_s
@@ -1063,30 +1462,46 @@ class OpUMINUS
 	end
 end	
 
+#--Class Literal--
 class Literal
 	
+	#Funcion para identificar errores de contexto de un Literal
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre=nil,tipo=nil)
 		return @tipo.to_s()
 	end
 end				
 
+#--Class ArrayConsult--
 class ArrayConsult
 
+	#Funcion para identificar errores de contexto de una Consulta de Arreglo
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+
+		#Obtenemos el tipo de la variable despues de la revision de errores
 		tipo_id = @identificador.check(padre,nil)
 
+		#Verificamos que la variable es un arreglo 
 		if tipo_id == "int" || tipo_id == "bool"
 			error = ErrTipoArrayConsult.new(@identificador.id.to_s(),tipo_id,@identificador.pos())
 			puts error.Error_to_s()
 			exit()
 		end
 
+		#Obtenemos el tipo de la consulta despues de la revision de errores
 		exp = @exp.check(padre,nil)
 
+		#Si la consulta es una variable de iteracion for la cambiamos a int para utilizarlas
 		if exp == "Not_Modify"
 			exp = "int"
 		end
 		
+		#Revisamos que la consulta sea un entero
 		if exp != "int"
 			error = ErrExpConsult.new(exp,@exp.pos())
 			puts error.Error_to_s()
@@ -1099,23 +1514,33 @@ end
 
 class ArrayAsig
 
+	#Funcion para identificar errores de contexto de una Inicializacion de Arreglo
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
+		#Obtenemos el tipo de la variable despues de la revision de errores
 		tipo_id = @identificador.check(padre,nil)
 
+		#Revisamos que la variable sea un arreglo
 		if tipo_id == "int" || tipo_id == "bool"
 			error = ErrTipoArrayConsult.new(@identificador.id.to_s(),tipo_id,@identificador.pos())
 			puts error.Error_to_s()
 			exit()
 		end
 
+		#Obtenemos la consulta si existe
 		consulta = @listArrayAsig.get_consult()
 		if consulta != nil
+			#Obtenemos el tipo de la consulta
 			consulta_tipo = consulta.check(padre,nil)
 
+			#Si la consulta es una variable de iteracion for la cambiamos a int para utilizarlas
 			if consulta_tipo == "Not_Modify"
 				consulta_tipo = "int"
 			end
 
+			#Revisamos que la consulta sea en un entero
 			if consulta_tipo != "int"
 				error = ErrExpConsult.new(consulta_tipo,consulta.pos())
 				puts error.Error_to_s()
@@ -1123,20 +1548,29 @@ class ArrayAsig
 			end
 		end		
 
-
+		#Revisamos errores en la lista de asignaciones
 		@listArrayAsig.check(padre,nil)	
-
+		if consulta != nil
+			return "int"
+		end	
 		return tipo_id
 	end
 end
 
 class ListArrayAsig
 
+	#Funcion para identificar errores de contexto de una Inicializacion de Arreglo
+	#--Atributos--
+	#padre: contiene una referencia a la tabla de simbolos actual
+	#tipo: nil ya que no lo necesitamos
 	def check(padre,tipo=nil)
 		if @lista_exp != nil
+
+			#Obtenemos los tipos de las expresiones despues de la revision de errores
 			exp1_tipo = @exp1.check(padre,nil)
 			exp2_tipo = @exp2.check(padre,nil)
 
+			#Si las expresiones son de tipo iterador for le cambiamos el tipo a entero para poder utilizarlas
 			if exp1_tipo == "Not_Modify"
 				exp1_tipo = "int"
 			end
@@ -1145,6 +1579,7 @@ class ListArrayAsig
 				exp2_tipo = "int"
 			end
 
+			#Revisamos que las expresiones sean enteros
 			if exp1_tipo != "int"
 				error = ErrExpConsult.new(exp1_tipo,@exp1.pos())
 				puts error.Error_to_s()
@@ -1155,12 +1590,15 @@ class ListArrayAsig
 				error = ErrArrayAsig.new(exp2_tipo,@exp2.pos())
 				puts error.Error_to_s()
 				exit()
-			end		
+			end
+			#Recorremos y revisamos las proximas asignaciones		
 			@lista_exp.check(padre,nil)
 		else
+			#Obtenemos los tipos de las expresiones despues de la revision de errores
 			exp1_tipo = @exp1.check(padre,nil)
 			exp2_tipo = @exp2.check(padre,nil)
 
+			#Si las expresiones son de tipo iterador for le cambiamos el tipo a entero para poder utilizarlas
 			if exp1_tipo == "Not_Modify"
 				exp1_tipo = "int"
 			end
@@ -1169,6 +1607,7 @@ class ListArrayAsig
 				exp2_tipo = "int"
 			end
 
+			#Revisamos que las expresiones sean enteros
 			if exp1_tipo != "int"
 				error = ErrExpConsult.new(exp1_tipo,@exp1.pos())
 				puts error.Error_to_s()
@@ -1182,19 +1621,4 @@ class ListArrayAsig
 			end
 		end
 	end
-end					
-
-
-
-
-
-
-
-
-		
-
-
-						
-
-																		
-
+end				

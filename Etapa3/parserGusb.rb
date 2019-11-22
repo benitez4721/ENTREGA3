@@ -27,7 +27,7 @@ end
 # Main del Parser
 class ParserGusb < Racc::Parser
 
-module_eval(<<'...end parserGusb2.y/module_eval...', 'parserGusb2.y', 246)
+module_eval(<<'...end parserGusb2.y/module_eval...', 'parserGusb2.y', 243)
 	
 	def initialize(tokens)
 		@tokens = tokens
@@ -692,266 +692,266 @@ module_eval(<<'.,.,', 'parserGusb2.y', 63)
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 66)
+module_eval(<<'.,.,', 'parserGusb2.y', 67)
   def _reduce_9(val, _values, result)
     result = Decla_Card.new(val[0],nil,val[4],nil,val[2])
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 67)
+module_eval(<<'.,.,', 'parserGusb2.y', 68)
   def _reduce_10(val, _values, result)
     result = Decla_Card.new(val[0],val[2],val[4],val[6],nil)
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 70)
+module_eval(<<'.,.,', 'parserGusb2.y', 72)
   def _reduce_11(val, _values, result)
     result = Decla_Tipo.new(val[0],nil,val[2])
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 71)
+module_eval(<<'.,.,', 'parserGusb2.y', 73)
   def _reduce_12(val, _values, result)
     result = Decla_Tipo.new(val[0],val[2],nil)
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 77)
+module_eval(<<'.,.,', 'parserGusb2.y', 78)
   def _reduce_13(val, _values, result)
      result = TipoNum.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 78)
+module_eval(<<'.,.,', 'parserGusb2.y', 79)
   def _reduce_14(val, _values, result)
      result = TipoBool.new(val[0])  
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 79)
+module_eval(<<'.,.,', 'parserGusb2.y', 80)
   def _reduce_15(val, _values, result)
      result = TipoArray.new(val[0],val[2],val[3],nil,val[5]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 80)
+module_eval(<<'.,.,', 'parserGusb2.y', 81)
   def _reduce_16(val, _values, result)
      result = TipoArray.new(val[0],val[2],val[3],val[5],val[6]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 81)
+module_eval(<<'.,.,', 'parserGusb2.y', 82)
   def _reduce_17(val, _values, result)
      result = TipoArray.new(val[0],nil,val[2],val[4],val[5]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 82)
+module_eval(<<'.,.,', 'parserGusb2.y', 83)
   def _reduce_18(val, _values, result)
      result = TipoArray.new(val[0],nil,val[2],nil,val[4]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 87)
+module_eval(<<'.,.,', 'parserGusb2.y', 88)
   def _reduce_19(val, _values, result)
      result = Asignacion.new(val[0], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 90)
+module_eval(<<'.,.,', 'parserGusb2.y', 91)
   def _reduce_20(val, _values, result)
     result = ArrayIni.new(val[0],val[2])
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 91)
+module_eval(<<'.,.,', 'parserGusb2.y', 92)
   def _reduce_21(val, _values, result)
     result = ArrayIni.new(val[0],nil)
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 102)
+module_eval(<<'.,.,', 'parserGusb2.y', 97)
   def _reduce_22(val, _values, result)
      result = Identificador.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 107)
+module_eval(<<'.,.,', 'parserGusb2.y', 102)
   def _reduce_23(val, _values, result)
      result = val[0] 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 108)
+module_eval(<<'.,.,', 'parserGusb2.y', 103)
   def _reduce_24(val, _values, result)
      result = val[0] 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 109)
+module_eval(<<'.,.,', 'parserGusb2.y', 104)
   def _reduce_25(val, _values, result)
      result = val[0] 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 110)
+module_eval(<<'.,.,', 'parserGusb2.y', 105)
   def _reduce_26(val, _values, result)
      result = ArrayAsig.new(val[0],val[1]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 111)
+module_eval(<<'.,.,', 'parserGusb2.y', 106)
   def _reduce_27(val, _values, result)
      result = Atoi.new(val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 112)
+module_eval(<<'.,.,', 'parserGusb2.y', 107)
   def _reduce_28(val, _values, result)
      result = Size.new(val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 113)
+module_eval(<<'.,.,', 'parserGusb2.y', 108)
   def _reduce_29(val, _values, result)
      result = Min.new(val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 114)
+module_eval(<<'.,.,', 'parserGusb2.y', 109)
   def _reduce_30(val, _values, result)
      result = Max.new(val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 115)
+module_eval(<<'.,.,', 'parserGusb2.y', 110)
   def _reduce_31(val, _values, result)
     result = OpSuma.new(val[0],val[1],val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 116)
+module_eval(<<'.,.,', 'parserGusb2.y', 111)
   def _reduce_32(val, _values, result)
      result = OpResta.new(val[0], val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 117)
+module_eval(<<'.,.,', 'parserGusb2.y', 112)
   def _reduce_33(val, _values, result)
      result = OpMultiplicacion.new(val[0],val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 118)
+module_eval(<<'.,.,', 'parserGusb2.y', 113)
   def _reduce_34(val, _values, result)
      result = OpDivisionE.new(val[0],val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 119)
+module_eval(<<'.,.,', 'parserGusb2.y', 114)
   def _reduce_35(val, _values, result)
      result = OpModE.new(val[0],val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 120)
+module_eval(<<'.,.,', 'parserGusb2.y', 115)
   def _reduce_36(val, _values, result)
      result = val[1] 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 121)
+module_eval(<<'.,.,', 'parserGusb2.y', 116)
   def _reduce_37(val, _values, result)
      result = OpUMINUS.new(val[0], val[1]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 122)
+module_eval(<<'.,.,', 'parserGusb2.y', 117)
   def _reduce_38(val, _values, result)
      result = OpAnd.new(val[0],val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 123)
+module_eval(<<'.,.,', 'parserGusb2.y', 118)
   def _reduce_39(val, _values, result)
      result = OpOr.new(val[0], val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 124)
+module_eval(<<'.,.,', 'parserGusb2.y', 119)
   def _reduce_40(val, _values, result)
      result = OpEquivalente.new(val[0],val[1],val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 125)
+module_eval(<<'.,.,', 'parserGusb2.y', 120)
   def _reduce_41(val, _values, result)
      result = OpDesigual.new(val[0], val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 126)
+module_eval(<<'.,.,', 'parserGusb2.y', 121)
   def _reduce_42(val, _values, result)
      result = OpExclamacion.new(val[0],val[1]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 127)
+module_eval(<<'.,.,', 'parserGusb2.y', 122)
   def _reduce_43(val, _values, result)
      result = OpMenor.new(val[0], val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 128)
+module_eval(<<'.,.,', 'parserGusb2.y', 123)
   def _reduce_44(val, _values, result)
      result = OpMenorIgual.new(val[0], val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 129)
+module_eval(<<'.,.,', 'parserGusb2.y', 124)
   def _reduce_45(val, _values, result)
      result = OpMayorIgual.new(val[0], val[1], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 130)
+module_eval(<<'.,.,', 'parserGusb2.y', 125)
   def _reduce_46(val, _values, result)
      result = OpMayor.new(val[0], val[1], val[2]) 
     result
@@ -962,217 +962,217 @@ module_eval(<<'.,.,', 'parserGusb2.y', 130)
 
 # reduce 48 omitted
 
-module_eval(<<'.,.,', 'parserGusb2.y', 141)
+module_eval(<<'.,.,', 'parserGusb2.y', 137)
   def _reduce_49(val, _values, result)
     result = ArrayConsult.new(val[0],val[2])
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 145)
+module_eval(<<'.,.,', 'parserGusb2.y', 142)
   def _reduce_50(val, _values, result)
     result = ListArrayAsig.new(nil,val[1],val[3],val[5],nil)
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 146)
+module_eval(<<'.,.,', 'parserGusb2.y', 143)
   def _reduce_51(val, _values, result)
     result = ListArrayAsig.new(nil,val[1],val[3],nil,nil)
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 147)
+module_eval(<<'.,.,', 'parserGusb2.y', 144)
   def _reduce_52(val, _values, result)
     result = ListArrayAsig.new(nil,val[1],val[3],nil,val[6])
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 151)
+module_eval(<<'.,.,', 'parserGusb2.y', 148)
   def _reduce_53(val, _values, result)
      result = LiteralNumerico.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 156)
+module_eval(<<'.,.,', 'parserGusb2.y', 153)
   def _reduce_54(val, _values, result)
      result = LiteralBooleano.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 157)
+module_eval(<<'.,.,', 'parserGusb2.y', 154)
   def _reduce_55(val, _values, result)
      result = LiteralBooleano.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 162)
+module_eval(<<'.,.,', 'parserGusb2.y', 159)
   def _reduce_56(val, _values, result)
      result = Instrucciones.new(val[0], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 163)
+module_eval(<<'.,.,', 'parserGusb2.y', 160)
   def _reduce_57(val, _values, result)
      result = Instrucciones.new(nil, val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 169)
+module_eval(<<'.,.,', 'parserGusb2.y', 166)
   def _reduce_58(val, _values, result)
      result = Instruccion.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 170)
+module_eval(<<'.,.,', 'parserGusb2.y', 167)
   def _reduce_59(val, _values, result)
      result = Instruccion.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 171)
+module_eval(<<'.,.,', 'parserGusb2.y', 168)
   def _reduce_60(val, _values, result)
      result = Instruccion.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 172)
+module_eval(<<'.,.,', 'parserGusb2.y', 169)
   def _reduce_61(val, _values, result)
      result = Instruccion.new(val[1]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 173)
+module_eval(<<'.,.,', 'parserGusb2.y', 170)
   def _reduce_62(val, _values, result)
      result = Instruccion.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 174)
+module_eval(<<'.,.,', 'parserGusb2.y', 171)
   def _reduce_63(val, _values, result)
      result = Instruccion.new(val[1]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 175)
+module_eval(<<'.,.,', 'parserGusb2.y', 172)
   def _reduce_64(val, _values, result)
      result = Instruccion.new(val[1]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 180)
+module_eval(<<'.,.,', 'parserGusb2.y', 177)
   def _reduce_65(val, _values, result)
      result = Entrada.new(val[1])
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 185)
+module_eval(<<'.,.,', 'parserGusb2.y', 182)
   def _reduce_66(val, _values, result)
      result = Salida.new(val[1], nil) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 186)
+module_eval(<<'.,.,', 'parserGusb2.y', 183)
   def _reduce_67(val, _values, result)
      result = Salida.new(val[1], "SALTO") 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 191)
+module_eval(<<'.,.,', 'parserGusb2.y', 188)
   def _reduce_68(val, _values, result)
      result = Imprimir.new(nil, val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 192)
+module_eval(<<'.,.,', 'parserGusb2.y', 189)
   def _reduce_69(val, _values, result)
      result = Imprimir.new(nil, val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 193)
+module_eval(<<'.,.,', 'parserGusb2.y', 190)
   def _reduce_70(val, _values, result)
      result = Imprimir.new(val[0], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 194)
+module_eval(<<'.,.,', 'parserGusb2.y', 191)
   def _reduce_71(val, _values, result)
      result = Imprimir.new(val[0], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 199)
+module_eval(<<'.,.,', 'parserGusb2.y', 196)
   def _reduce_72(val, _values, result)
      result = Str.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 204)
+module_eval(<<'.,.,', 'parserGusb2.y', 201)
   def _reduce_73(val, _values, result)
      result = Condicional.new(val[0],val[2],val[3]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 205)
+module_eval(<<'.,.,', 'parserGusb2.y', 202)
   def _reduce_74(val, _values, result)
      result = Condicional.new(val[0],val[2],nil) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 210)
+module_eval(<<'.,.,', 'parserGusb2.y', 207)
   def _reduce_75(val, _values, result)
     result = Guardia.new(val[1],val[3],val[4])
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 211)
+module_eval(<<'.,.,', 'parserGusb2.y', 208)
   def _reduce_76(val, _values, result)
     result = Guardia.new(val[1],val[3],nil)
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 214)
+module_eval(<<'.,.,', 'parserGusb2.y', 211)
   def _reduce_77(val, _values, result)
      result = IteradorFor.new(val[1], val[3], val[5], val[8]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 219)
+module_eval(<<'.,.,', 'parserGusb2.y', 216)
   def _reduce_78(val, _values, result)
      result = IteratorDo.new(val[0],val[2],nil) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parserGusb2.y', 220)
+module_eval(<<'.,.,', 'parserGusb2.y', 217)
   def _reduce_79(val, _values, result)
      result = IteratorDo.new(val[0],val[2],val[3]) 
     result

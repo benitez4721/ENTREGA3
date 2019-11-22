@@ -39,12 +39,13 @@ def main
 		end			
 						
 	end
-	#for token in lex.parserTk
-	#	puts ("#{token[0]}")
-	#end	
+	#Invocamos al parser
 	pars = ParserGusb.new(lex.parserTk)
+	#Creamos el AST
 	ast = pars.parse
+	#Revisamos si exiten errores de contexto y creamos las tablas de simbolos
 	ast.check()
+	#Imprimimos en arbol si no existe ningun error de contexto
 	if $Error == false
 		puts ast.to_s()
 	end	

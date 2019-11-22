@@ -1,3 +1,8 @@
+# Autores: Marco Benitez 13-10137
+#          Orlando Chaparro 12-11499
+
+
+#--Descripcion--
 # Implementacion de la Tabla de simbolos para  
 # el analisis semantico del lenguaje Guardusb
 
@@ -7,21 +12,12 @@ class STable
 		@table = Hash.new()
 	end	
 	
-
+	#Funcion de insercion en la tabla
 	def insert(key,value)	
 		@table.store(key,value)
 	end
-
-	def delete(key)
-		@table.delete(key)
-	end	
-
-	def update(key,new_value)
-		n_table = Hash.new
-		n_table.store(key,new_value)
-		@table.merge!(n_table)	
-	end
 	
+	#Funcion para verificar si existe el elemento de clave 'key' en la tabla
 	def ExistKey(key)
 		if @table.has_key?(key) 
 			return true
@@ -30,10 +26,12 @@ class STable
 		end
 	end
 
+	#Funcion que retorna el elemento de clave 'key'
 	def get(key)
 		return @table.fetch(key,nil)
 	end
 	
+	#Funcion de impresion de la tabla de simbolos
 	def printTable(tab)
 		s = (" "*tab) + "Symbols Table\n"
 		if not @table.empty?

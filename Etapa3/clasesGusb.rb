@@ -10,7 +10,7 @@
 # -- Clase Programa --
 #
 # Representa el nodo de la estructura principal programa
-$array_type = []
+
 
 class Programa
 
@@ -125,6 +125,9 @@ class ListaDeclaracion
 
 end
 
+#--Class Decla_Tipo--
+#
+#Representa el nodo de una delcaracion donde se tienes varios identificadores y un solo tipo
 class Decla_Tipo
 
 	attr_accessor :identificador , :l_identificadores, :tipo
@@ -134,7 +137,7 @@ class Decla_Tipo
 		@l_identificadores = l_identificadores
 		@tipo = tipo
 	end	
-
+	#Funcion de impresion
 	def to_s(tab)
 		s =""
 		if @l_identificadores != nil
@@ -145,6 +148,7 @@ class Decla_Tipo
 		return s
 
 	end
+	#Funcion que retorna el tipo de la declaracion
 	def get_tipo()
 		if @l_identificadores != nil
 			@l_identificadores.get_tipo()
@@ -153,11 +157,15 @@ class Decla_Tipo
 		end	
 	end
 
+	#Funcion que retorna el modo de la declaracion
 	def get_modo()
 		return "tipo"
 	end			
 end
 
+#--Class Decla_Card--
+#
+#Representa un nodo de una declaracion de varias variables con un tipo especifico para cada una de ellas 
 class Decla_Card
 	
 	attr_accessor :identificador1, :identificador2, :tipo1, :tipo2, :l_identificadores
@@ -167,11 +175,11 @@ class Decla_Card
 		@identificador2 = identificador2
 		@tipo1 = tipo1
 		@tipo2 = tipo2
-		@array_type = []
 		@l_identificadores = l_identificadores
 		
 	end
 	
+	#Funcion de impresion
 	def to_s(tab)
 		s =""
 		if @l_identificadores != nil
@@ -181,6 +189,7 @@ class Decla_Card
 		end
 	end
 
+	#Funcion que me retorna un arreglo con todos los tipos de las variables de la declaracion
 	def get_array_type(array)
 		
 		if @l_identificadores != nil
