@@ -1,22 +1,22 @@
 |[
 declare x, y: int
 |[
-	declare x, y: array[2..3] 
-	x := 1; 
-	print "print 1 " || x // x ser´a de tipo array 
+	declare x, y: array[2..4] 
+	y := 1,2
 ]|;
 |[
-	declare x, y: bool 
-	x := true;
-	print "print 2 " || x // x ser´a de tipo bool 
-]|; 
-x := 10; 
+	declare x, y: bool; 
+	z : array[3..4]
+	x := true
+
+]|;
+x := 10;
 print "print 3 " || x; // x ser´a de tipo int
 for x in 1 to 5 --> 
-	|[ 
-		declare z: array[-1..0] // Esconde la declaraci´on de x hecha por el for 
-		y := 4; 
+	|[ declare x: array[-1..0] // Esconde la declaraci´on de x hecha por el for 
+		x := 4;
 		print "print 4 " || x // x ser´a de tipo array 
 	]| 
 rof
+
 ]|

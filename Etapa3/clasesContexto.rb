@@ -392,8 +392,8 @@ class Asignacion
 		x = 0
 		exp_length = @expresion.length(x)
 		tipo_id = @identificador.check(padre,nil)
-		tipo_exp = @expresion.check(padre,nil,exp_length)
-		if tipo_exp != "int" && tipo_exp != "bool" && exp_length == 1
+		tipo_exp = @expresion.check(padre,nil,exp_length,tipo_id)
+		if tipo_exp != "int" && tipo_exp != "bool" && exp_length == 1 &&  tipo_id != "int" && tipo_id != "bool"
 			return nil
 		end		
 
@@ -430,10 +430,10 @@ class Asignacion
 end
 
 class ArrayIni
-	def check(padre,tipo=nil,exp_length)
+	def check(padre,tipo=nil,exp_length,tipo_id)
 		if exp_length == 1
 			exp_tipo = @exp.check(padre,nil)
-			if exp_tipo == "bool"
+			if exp_tipo == "bool" && tipo_id != "bool" && tipo_id != "int"
 				error = ErrArrayAsig.new(exp_tipo,@exp.pos())
 				puts error.Error_to_s
 				exit()

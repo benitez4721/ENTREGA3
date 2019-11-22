@@ -23,7 +23,7 @@ class STable
 	end
 	
 	def ExistKey(key)
-		if @table.has_key?(key)
+		if @table.has_key?(key) 
 			return true
 		else
 			return false
