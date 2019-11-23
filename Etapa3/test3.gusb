@@ -1,4 +1,4 @@
 |[
-declare x, y, z, p : int, int, array[0..2], int
-x := 1; y := 1; z := 4, 3; if x==y --> x := z[2]+1 [] x != y --> |[ declare z : int; q : array[1..2] z := 3; q := atoi(q); println z ]| fi
+declare x, y, z, p : int, int, array[-2..2], int
+x := 1; y := 5 ; z := 4,1,1,1,1 ; if x==y --> x := z[2]+1 [] x != y --> |[ declare z : int; q : array[1..2] z := 3; q := atoi(q),2; println "hola" ]| fi
 ]|

@@ -649,10 +649,12 @@ class Tipo
 		@signo2 = signo2
 	end
 	
+	#funcion de impresion
 	def to_s(tab)
 		return "type: "+tipo			
 	end
 
+	#funcion que retorna la impresion correcta de los arreglos en la tabla de simbolos
 	def value()
 		if num1 == nil
 			return @tipo.to_s()
@@ -670,21 +672,24 @@ class Tipo
 			end
 		end	
 	end
+	#funcion que retorna la longitud de un arreglo
 	def size()
 		if num1 != nil
 			if signo1 != nil
 				if signo2 != nil
-					return -@num2.valor.to_s().to_i()+@num1.valor.to_s().to_i()
+					return -@num2.valor.to_s().to_i()+@num1.valor.to_s().to_i() + 1
 				else
-					return @num2.valor.to_s().to_i()+@num1.valor.to_s().to_i()
+					return @num2.valor.to_s().to_i()+@num1.valor.to_s().to_i() + 1
 				end
 			elsif signo2 != nil
-				return -@num2.valor.to_s().to_i()+@num1.valor.to_s().to_i()
+				return -@num2.valor.to_s().to_i()+@num1.valor.to_s().to_i() + 1
 			else
-				return @num2.valor.to_s().to_i()-@num1.valor.to_s().to_i()	
+				return @num2.valor.to_s().to_i()-@num1.valor.to_s().to_i()	+ 1
 			end
 		end	
 	end
+
+	#funcion que indica si el rango de indice de un arreglo es valido
 	def valido()
 		if num1 != nil
 			if signo1 != nil
