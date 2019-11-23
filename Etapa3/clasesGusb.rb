@@ -605,6 +605,9 @@ class ArrayConsult
 	end
 end
 
+#--Class ArrayIni
+#
+#Representa una nodo de una inicializacion de arreglo
 class ArrayIni
 
 	attr_accessor :exp, :lista_exp
@@ -614,6 +617,7 @@ class ArrayIni
 		@lista_exp = lista_exp
 	end
 	
+	#Funcion de impresion
 	def to_s(tab)
 		s =""
 		if lista_exp != nil
@@ -624,6 +628,7 @@ class ArrayIni
 		return s
 	end
 	
+	#funcion que retorna la longitud de una asignacion
 	def length(x)
 		if @lista_exp != nil
 			x = x +1
@@ -707,6 +712,7 @@ class Tipo
 	end		
 
 end
+
 
 class TipoNum < Tipo
 
@@ -817,6 +823,9 @@ class LiteralBooleano < Literal
 
 end
 
+#Class ExpresionBinaria
+#
+#Representa el nodo de una expresion binaria
 class ExpresionBinaria
 
 	attr_accessor :oper1, :op, :oper2
@@ -942,6 +951,9 @@ class OpOr < ExpresionBinaria
 
 end
 
+#Class ExpresionUnaria
+#
+#Representa el nodo de una expresion Unaria
 class ExpresionUnaria
 
 	# -- Atributos -- 
