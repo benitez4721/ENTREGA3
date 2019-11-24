@@ -71,14 +71,14 @@ class Cuerpo
 	#
 	# def DECLARE_LIST en clase ListaDeclaracion.
 	# def INSTRUCTION_LIST en clase Instrucciones.
-	def to_s(tab)
+	def to_s(tab,table=nil)
 		c = @table.printTable(tab+1)
 		s = (" "*tab) + "Block\n"
 		if @l_declaraciones != nil
-			s << c+"\n" + @l_instrucciones.to_s(tab+1)
+			s << c+"\n" + @l_instrucciones.to_s(tab+1,@table)
 
 		elsif
-			s << @l_instrucciones.to_s(tab+1)
+			s << @l_instrucciones.to_s(tab+1,@table)
 		end
 
 		return s
@@ -262,13 +262,13 @@ class Instrucciones
 	#   INSTRUCTION |	
 	#
 	# def INSTRUCTION en clase Instruccion.
-	def to_s(tab)
+	def to_s(tab,table)
 		s = ""
 		if @instrucciones != nil
-			s << @instrucciones.to_s(tab) + (" "*(tab))+"Sequencing\n" + @instruccion.to_s(tab+1)
+			s << @instrucciones.to_s(tab,table) + (" "*(tab))+"Sequencing\n" + @instruccion.to_s(tab+1,table)
 		
 		else
-			s << @instruccion.to_s(tab)
+			s << @instruccion.to_s(tab,table)
 		end
 
 		return s
@@ -292,9 +292,9 @@ class Instruccion
 	end
 
 	# -- Funcion de impresion --
-	def to_s(tab)
+	def to_s(tab,table)
 		s = ""
-		s << @instruccion.to_s(tab)
+		s << @instruccion.to_s(tab,table)
 		return s
 	end
 
@@ -317,8 +317,8 @@ class Asignacion
 	end
 
 	# -- Funcion de impresion --
-	def to_s(tab) 
-		return (" "*tab) + "Asig\n " + @identificador.to_s(tab) + @expresion.to_s(tab+1) 
+	def to_s(tab,table) 
+		return (" "*tab) + "Asig\n " + @identificador.to_s(tab) + @expresion.to_s(tab+1,table) 
 	end
 end
 
@@ -337,7 +337,7 @@ class Entrada
 	end
 
 	# -- Funcion de impresion --
-	def to_s(tab)
+	def to_s(tab,table)
 		return (" "*tab) + "Read\n" + @identificador.to_s(tab+1)
 	end
 
@@ -360,7 +360,7 @@ class Salida
 	end
 
 	# -- Funcion de impresion --
-	def to_s(tab)
+	def to_s(tab,table)
 		if @salto == "SALTO"
 			return (" "*tab) + "Println\n" + @l_imprimir.to_s(tab+1) 
 
@@ -430,13 +430,13 @@ class Condicional
 	end
 
 	# -- Funcion de impresion --
-	def to_s(tab)
+	def to_s(tab,tabla)
 		s =(" "*(tab)) + "If\n"
 		if @lista_instrucciones2 != nil
-			s << (" "*(tab+1)) + "Guard\n" +(" "*(tab+2)) + "Exp\n" +  @condicion.to_s(tab+3) + @lista_instrucciones1.to_s(tab+2) + @lista_instrucciones2.to_s(tab+1)
+			s << (" "*(tab+1)) + "Guard\n" +(" "*(tab+2)) + "BoolExp\n" +  @condicion.to_s(tab+3) + @lista_instrucciones1.to_s(tab+2,tabla) + @lista_instrucciones2.to_s(tab+1,tabla)
 
 		else
-			s << (" "*(tab+1)) + "Guard\n" +(" "*(tab+2)) + "Exp\n"+ @condicion.to_s(tab+3) + @lista_instrucciones1.to_s(tab+2)
+			s << (" "*(tab+1)) + "Guard\n" +(" "*(tab+2)) + "BoolExp\n"+ @condicion.to_s(tab+3) + @lista_instrucciones1.to_s(tab+2,tabla)
 		end
 
 		return s
@@ -459,10 +459,10 @@ class IteradorFor
 	end
 
 	# -- Funcion de impresion --
-	def to_s(tab)
+	def to_s(tab,table=nil)
 		c = @for_table.printTable(tab+2)
 		s = (" "*tab) + "For\n"
-		s << (" "*(tab+1)) + "In\n" + @id.to_s(tab+2) +(" "*(tab+2))+"Exp\n" + @exp1.to_s(tab+3) +(" "*(tab+2))+"Exp\n" + @exp2.to_s(tab+3) +(" "*(tab+1))+"Block\n" + c + "\n" + @cuerpo.l_instrucciones.to_s(tab+2)
+		s << (" "*(tab+1)) + "In\n" + @id.to_s(tab+2) +(" "*(tab+2))+"ArithExp\n" + @exp1.to_s(tab+3) +(" "*(tab+2))+"ArithExp\n" + @exp2.to_s(tab+3) +(" "*(tab+1))+"Block\n" + c + "\n" + @cuerpo.l_instrucciones.to_s(tab+2,@for_table)
 		return s
 	end
 
@@ -482,13 +482,13 @@ class IteratorDo
 	end
 
 	# -- Funcion de impresion --
-	def to_s(tab)
+	def to_s(tab,table)
 		s =(" "*(tab)) + "Do\n"
 		if @lista_instrucciones2 != nil
-			s << (" "*(tab+1)) + "Guard\n" +(" "*(tab+2)) + "Exp\n" +  @condicion.to_s(tab+3) + @lista_instrucciones1.to_s(tab+2) + @lista_instrucciones2.to_s(tab+1)
+			s << (" "*(tab+1)) + "Guard\n" +(" "*(tab+2)) + "BoolExp\n" +  @condicion.to_s(tab+3) + @lista_instrucciones1.to_s(tab+2,table) + @lista_instrucciones2.to_s(tab+1,table)
 
 		else
-			s << (" "*(tab+1)) + "Guard\n" +(" "*(tab+2)) + "Exp\n"+ @condicion.to_s(tab+3) + @lista_instrucciones1.to_s(tab+2)
+			s << (" "*(tab+1)) + "Guard\n" +(" "*(tab+2)) + "BoolExp\n"+ @condicion.to_s(tab+3) + @lista_instrucciones1.to_s(tab+2,table)
 		end
 
 		return s
@@ -510,12 +510,12 @@ class Guardia
 	end
 
 	#-- Funcion de impresion --
-	def to_s(tab)
+	def to_s(tab,table)
 		s = ""
 		if @lista_instrucciones2 != nil
-			s << (" "*tab) +"Guard\n" +(" "*(tab+1)) + "Exp\n"+ @condicion.to_s(tab+2) + @lista_instrucciones1.to_s(tab+1) + @lista_instrucciones2.to_s(tab)
+			s << (" "*tab) +"Guard\n" +(" "*(tab+1)) + "BoolExp\n"+ @condicion.to_s(tab+2) + @lista_instrucciones1.to_s(tab+1,table) + @lista_instrucciones2.to_s(tab,table)
 		else
-			s << (" "*tab) +"Guard\n" +(" "*(tab+1)) + "Exp\n"+ @condicion.to_s(tab+2) + @lista_instrucciones1.to_s(tab+1)
+			s << (" "*tab) +"Guard\n" +(" "*(tab+1)) + "BoolExp\n"+ @condicion.to_s(tab+2) + @lista_instrucciones1.to_s(tab+1,table)
 		end
 		
 		return s
@@ -601,13 +601,13 @@ class ArrayConsult
 	
 	def to_s(tab)
 		
-		return (" "*tab) +"EvalArray\n" + @identificador.to_s(tab+1) + (" "*(tab+1)) +"Exp\n"+ @exp.to_s(tab+2)
+		return (" "*tab) +"EvalArray\n" + @identificador.to_s(tab+1) + (" "*(tab+1)) +"ArithExp\n"+ @exp.to_s(tab+2)
 	end
 end
 
 #--Class ArrayIni
 #
-#Representa una nodo de una inicializacion de arreglo
+#Representa una nodo de una inicializacion de arreglo o una expresion a asignar
 class ArrayIni
 
 	attr_accessor :exp, :lista_exp
@@ -618,12 +618,26 @@ class ArrayIni
 	end
 	
 	#Funcion de impresion
-	def to_s(tab)
+	def to_s(tab,table)
 		s =""
 		if lista_exp != nil
-			s <<(" "*tab) + "Exp\n" + exp.to_s(tab+1) + lista_exp.to_s(tab)
+			exp_tipo = @exp.check(table,nil)
+			if exp_tipo == "int"
+				s << (" "*tab) + "ArithExp \n" + exp.to_s(tab+1) + lista_exp.to_s(tab,table)
+			elsif exp_tipo == "bool"
+				s << (" "*tab) + "BoolExp \n" + exp.to_s(tab+1) + lista_exp.to_s(tab,table)
+			else
+				s << (" "*tab) + "Exp \n" + exp.to_s(tab+1) + lista_exp.to_s(tab,table)	
+			end	
 		else
-			s << (" "*tab) + "Exp\n" + exp.to_s(tab+1)
+			exp_tipo = @exp.check(table,nil)
+			if exp_tipo == "int"
+				s << (" "*tab) + "ArithExp \n" + exp.to_s(tab+1)
+			elsif exp_tipo == "bool"
+				s << (" "*tab) + "BoolExp \n" + exp.to_s(tab+1)
+			else
+				s << (" "*tab) + "Exp \n" + exp.to_s(tab+1)	
+			end	
 		end
 		return s
 	end
@@ -890,7 +904,7 @@ end
 class OpEquivalente < ExpresionBinaria
 
 	def initialize(oper1,op,oper2)
-		super(oper1,op,oper2,"Equal")
+		super(oper1,op,oper2,"ArithEqual")
 	end
 
 end
@@ -898,7 +912,7 @@ end
 class OpDesigual < ExpresionBinaria
 
 	def initialize(oper1,op,oper2)
-		super(oper1,op,oper2,"Nequal")
+		super(oper1,op,oper2,"ArithNotEqual")
 	end
 
 end
