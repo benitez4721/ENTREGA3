@@ -1,0 +1,10 @@
+|[
+	declare x,y:int,array[4..6]
+	x := min(y);
+	for i in min(y) to max(y) -->
+		|[
+			println y[i]
+		]|
+	rof
+	
+]|
