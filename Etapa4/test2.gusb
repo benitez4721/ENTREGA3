@@ -1,0 +1,18 @@
+|[
+	declare 
+	dinero, neto, retiro, comision_tot,i,ganancia,comision_mes : int;
+	f : bool
+	ganancia := 0;
+	dinero := 900;
+	neto := 0;
+	retiro := 0;
+	comision_tot := 0;
+	f := true;
+	i := 1;
+
+	
+	ganancia := 900*(5/6);
+	println ganancia
+	
+	
+]|	

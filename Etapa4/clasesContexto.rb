@@ -352,6 +352,16 @@ class ErrArrayIni
 	end	
 end	
 
+class ErrAtoi
+	def initialize(pos)
+		@pos = pos
+	end
+	
+	def Error_to_s()
+		return "Error Fila #{@pos[0]} Columna #{@pos[1]}:  El argumento debe ser un arreglo de longitud '1' "
+	end	
+end	
+
 #---CLASES DE ESTRUCTURAS--
 
 #--Class Programa
@@ -403,13 +413,11 @@ class Cuerpo
 	end
 
 	def evaluar(table)
-	#	if @l_declaraciones != nil
-	#		@l_declaraciones.evaluar(@table)
-	#	end
 		
-		if @l_instrucciones != nil
-			@l_instrucciones.evaluar(@table)
-		end
+	if @l_instrucciones != nil
+		@l_instrucciones.evaluar(@table)
+	end
+		
 	end	
 
 end
@@ -437,18 +445,7 @@ class ListaDeclaracion
 			#Revisamos errores en una declaracion
 			@declaracion.check(padre,nil,0)
 		end			
-	end
-
-	#def evaluar(table)
-	#	if @l_declaraciones != nil
-			#Seguimos revisando las declaraciones
-	#		@l_declaraciones.evaluar(table)
-	#	else
-	#		@declaracion.evaluar(tabla)	
-	#	end
-
-		
-	
+	end	
 end
 
 #--Class Decla_Card--
@@ -506,9 +503,6 @@ class Identificador
 	#padre: contiene una referencia a la tabla de simbolos actual
 	#tipo: contiene el tipo del identificador a verificar
 	def	check(padre,tipo)
-		if padre == nil
-				puts "holis"
-		end	
 		#Venimos de una declaracion
 		if tipo != nil
 
@@ -568,31 +562,66 @@ class Identificador
 			end
 		end		
 	end
-	def evaluar(table)
+	def evaluar(table,tipo)
 		#Queremos el valor de la variable
-		if not table.ExistKey(@id.to_s())
-				upper_table = table.get("T_Padre")
+		if tipo == "int" || tipo == "bool" || tipo == nil
+			if not table.ExistKey(@id.to_s())
+					upper_table = table.get("T_Padre")
 
-				while upper_table != nil
-					if not upper_table.ExistKey(@id.to_s())
+					while upper_table != nil
+						if not upper_table.ExistKey(@id.to_s())
 
-						upper_table = upper_table.get("T_Padre")
+							upper_table = upper_table.get("T_Padre")
 
-					else
-						#La variable esta declarada entonces retornamos su tipo
-						return upper_table.get(@id.to_s())[1] 
+						else
+							#La variable esta declarada entonces retornamos su valor
+							val = upper_table.get(@id.to_s())[1] 
+							if val != nil
+								return val
+							else
+								error = ErrVarini.new(@id.to_s,@id.position())
+								puts error.Error_to_s
+								exit()
+							end	 
+						end
 					end
-				end
-		else
-			val = table.get(@id.to_s())[1]
-			if val != nil
-				return val
 			else
-				error = ErrVarini.new(@id.to_s,@id.position())
-				puts error.Error_to_s
-				exit()
-			end	
-		end
+				val = table.get(@id.to_s())[1]
+				if val != nil
+					return val
+				else
+					error = ErrVarini.new(@id.to_s,@id.position())
+					puts error.Error_to_s
+					exit()
+				end	
+			end
+		else
+
+			if not table.ExistKey(@id.to_s())
+					upper_table = table.get("T_Padre")
+
+					while upper_table != nil
+						if not upper_table.ExistKey(@id.to_s())
+
+							upper_table = upper_table.get("T_Padre")
+
+						else
+							#La variable esta declarada entonces retornamos su tipo
+							return upper_table.get(@id.to_s())[2] 
+						end
+					end
+			else
+				val = table.get(@id.to_s())[2]
+				if val.length > 0
+					return val
+				else
+					error = ErrArrayIni.new(@id.position())
+					puts error.Error_to_s
+					exit()
+				end	
+			end
+		end	
+				
 	end			
 end
 
@@ -785,11 +814,10 @@ class Asignacion
 
 	def evaluar(table)
 		array = []
-		@expresion.evaluar(table,@identificador,array)
+		
+		array = @expresion.evaluar(table,@identificador,array)
 		if array.length > 0
 			tipo_id = @identificador.check(table,nil)
-			x = 0
-			exp_length = @expresion.length(x)
 			#Ubicamos el arreglo y obtenemos los indices
 			if not table.ExistKey(@identificador.id.to_s())
 				upper_table = table.get("T_Padre")
@@ -809,7 +837,7 @@ class Asignacion
 				index1 = table.get(@identificador.id.to_s())[3]
 				index2 = table.get(@identificador.id.to_s())[4]
 			end	
-			table.update(@identificador.id.to_s(),[tipo_id,exp_length,array,index1,index2])
+			table.update(@identificador.id.to_s(),[tipo_id,array.length,array,index1,index2])
 		end	
 	end	
 end
@@ -865,16 +893,26 @@ class ArrayIni
 	def evaluar(table,identificador,array)
 		id_tipo = identificador.check(table,nil)
 		if id_tipo == "int" || id_tipo == "bool"
-			val_exp = @exp.evaluar(table)
+			val_exp = @exp.evaluar(table,nil)
 			table.update(identificador.id.to_s(),[id_tipo,val_exp])
+			array = []
+			return array
 		else
 			if lista_exp != nil
-				array << @exp.evaluar(table)
+				array << @exp.evaluar(table,nil)
 				lista_exp.evaluar(table,identificador,array)
 			else
-				array << @exp.evaluar(table)
+				exp_tipo = @exp.check(table,nil)
+				if exp_tipo != "int"
+					array = @exp.evaluar(table,exp_tipo)
+					return array
+				else	
+					array << @exp.evaluar(table,nil)
+					return array
+
+				end	
 			end			
-		end	
+		end
 	end			
 end		
 
@@ -890,29 +928,86 @@ class Entrada
 
 	def evaluar(table)
 		var_tipo = @identificador.check(table,nil)
-
 		num = /^\d+$/
 		bool = /^false{1}$|^true{1}$/
+		array = /^(([\d+][','])|[\d+])+$/
 		input_tipo = nil
-		while input_tipo == nil
+		error_read = true
+		while input_tipo == nil && error_read
+			error_previo = false
 			input = $stdin.gets.strip
 			if input =~ num
 				input_tipo = "int"
 			elsif input =~ bool
 				input_tipo = "bool"
+			elsif input =~ array
+				input_tipo = "array"
 			else
-				puts "Entrada no valida, vuelva a intentar"
+				puts "Input no valido,vuelva a intentar"
+				error_previo = true
 			end
-		end	
+		
+		
 
-		if var_tipo != input_tipo
-			#error = ErrTipoInput.new(@identificador.id.to_s(),@identificador.pos())
-			#puts error.Error_to_s
-			#exit()
-			puts "Error tipo"
-			exit()
-		end
-		table.update(@identificador.id.to_s(),[var_tipo,input])	
+			if input_tipo == "array" && var_tipo != "int" && var_tipo != "bool"
+				input_tipo = var_tipo
+			end
+
+			if input_tipo == "int" && var_tipo != "int" && var_tipo != "bool"
+				input_tipo = var_tipo
+			end	
+
+			if var_tipo != input_tipo && error_previo == false
+				#error = ErrTipoInput.new(@identificador.id.to_s(),@identificador.pos())
+				#puts error.Error_to_s
+				#exit()
+				puts "Error la entrada debe ser de tipo '#{var_tipo}', vuelva a intentar"
+				input_tipo = nil
+			
+			elsif var_tipo == "int" || var_tipo == "bool" && error_previo == false && input_tipo != nil
+				table.update(@identificador.id.to_s(),[var_tipo,input])
+				error_read = false
+
+			elsif error_previo == false && input_tipo != nil
+				array_input = input.split(",")
+				# Ubtenemos el arreglo y su dimension
+				if not table.ExistKey(@identificador.id.to_s())
+					upper_table = table.get("T_Padre")
+
+					while upper_table != nil
+						if not upper_table.ExistKey(@identificador.id.to_s())
+
+							upper_table = upper_table.get("T_Padre")
+
+						else
+							array_size = upper_table.get(@identificador.id.to_s)[1]
+							index1 = upper_table.get(@identificador.id.to_s)[3]
+							index2 = upper_table.get(@identificador.id.to_s)[4]
+							if array_input.length != array_size 
+								puts "Se deben introducir #{array_size} enteros,vuelva a intentar"
+								input_tipo = nil
+							else
+								upper_table.update(@identificador.id.to_s,[var_tipo,array_size,array_input,index1,index2])
+								error_read = false
+							end	
+								
+						end
+					end
+				else
+					
+					array_size = table.get(@identificador.id.to_s)[1]
+					index1 = table.get(@identificador.id.to_s)[3]
+					index2 = table.get(@identificador.id.to_s)[4]
+					if array_input.length != array_size 
+						puts "Se deben introducir #{array_size} enteros,vuelva a intentar"
+						input_tipo = nil
+					else
+						table.update(@identificador.id.to_s,[var_tipo,array_size,array_input,index1,index2])
+						error_read = false
+					end
+				end						
+			end	
+		end	
 	end
 
 
@@ -964,7 +1059,7 @@ class Imprimir
 		if @lista_impresion != nil
 			@lista_impresion.evaluar(tabla,s)
 		end
-			val = impresion.evaluar(tabla)
+			val = impresion.evaluar(tabla,nil)
 			val = val.to_s()
 			s << val
 	
@@ -982,7 +1077,7 @@ class Str
 	def check(padre=nil,tipo=nil)
 		return @string
 	end	
-	def evaluar(table=nil)
+	def evaluar(table=nil,tipo=nil)
 		return @string
 	end		
 end
@@ -1018,13 +1113,14 @@ class Condicional
 
 	def evaluar(table)
 
-		val_cond = @condicion.evaluar(table)
+		val_cond = @condicion.evaluar(table,nil)
 		if val_cond == "true"
 			@lista_instrucciones1.evaluar(table)
-		end
-		if @lista_instrucciones2 != nil
-			@lista_instrucciones2.evaluar(table)
-		end
+		else
+			if @lista_instrucciones2 != nil
+				@lista_instrucciones2.evaluar(table)
+			end
+		end	
 	end		
 
 end
@@ -1057,13 +1153,16 @@ class Guardia
 	end
 
 	def evaluar(table)
-		val_cond = @condicion.evaluar(table)
+		val_cond = @condicion.evaluar(table,nil)
 		if val_cond == "true"	
 			@lista_instrucciones1.evaluar(table)
-		end
-		if @lista_instrucciones2 != nil
-			@lista_instrucciones2.evaluar(table)
-		end
+		else
+			if @lista_instrucciones2 != nil
+				@lista_instrucciones2.evaluar(table)
+			else
+				$cond = false
+			end	
+		end	
 	end				
 end
 
@@ -1078,7 +1177,7 @@ class IteradorFor
 		#Creamos una tabla de simbolos donde solo guardaremos el iterador del for y le asignamos un apuntador a la tabla actual
 		@iterator_table = STable.new()
 		@iterator_table.insert("T_Padre",padre)
-		@iterator_table.insert(@id.id.to_s(),["Not_Modify",0])
+		@iterator_table.insert(@id.id.to_s(),["Not_Modify",nil])
 		#Creamos una tabla para el cuerpo del for y le asignamos un apuntador a la tabla donde guardamos el iterador
 		@for_table = STable.new()
 		@for_table.insert("T_Padre",@iterator_table)
@@ -1110,6 +1209,14 @@ class IteradorFor
 		end
 	end
 
+	def evaluar(table)
+		iter_ini = @exp1.evaluar(table,nil)
+		iter_end = @exp2.evaluar(table,nil)
+		for i in iter_ini.to_i..iter_end.to_i
+			@iterator_table.update(@id.id.to_s(),["Not_Modify",i])
+			@cuerpo.l_instrucciones.evaluar(@for_table)
+		end	
+	end	
 end
 
 #--Class IteratorDo--
@@ -1138,7 +1245,23 @@ class IteratorDo
 			@lista_instrucciones2.check(padre)
 		end	
 
-	end		
+	end
+
+	def evaluar(table)
+		$cond = true
+		while $cond
+			if @condicion.evaluar(table,nil) == "true"
+				@lista_instrucciones1.evaluar(table)
+			else
+				if @lista_instrucciones2 != nil
+					@lista_instrucciones2.evaluar(table)
+				else
+					$cond = false
+				end		
+			end	
+		end
+	end	
+					
 end
 
 #--Class Min--
@@ -1162,23 +1285,43 @@ class Min
 		return "int"
 	end
 
-	def evaluar(table)
-		if not table.ExistKey(@identificador.id.to_s())
-				upper_table = table.get("T_Padre")
+	def evaluar(table,tipo=nil)
+		modo = @identificador.get_nodo()
+		if modo == "Id"
+			if not table.ExistKey(@identificador.id.to_s())
+					upper_table = table.get("T_Padre")
 
-				while upper_table != nil
-					if not upper_table.ExistKey(@identificador.id.to_s())
+					while upper_table != nil
+						if not upper_table.ExistKey(@identificador.id.to_s())
 
-						upper_table = upper_table.get("T_Padre")
+							upper_table = upper_table.get("T_Padre")
 
-					else
-						indiceMin = upper_table.get(@identificador.id.to_s())[3]							
-						break()
+						else
+							indiceMin = upper_table.get(@identificador.id.to_s())[3]							
+							break()
+						end
 					end
-				end
+			else
+				indiceMin = table.get(@identificador.id.to_s())[3]	
+			end
 		else
-			indiceMin = table.get(@identificador.id.to_s())[3]	
-		end
+			if not table.ExistKey(@identificador.identificador.id.to_s())
+					upper_table = table.get("T_Padre")
+
+					while upper_table != nil
+						if not upper_table.ExistKey(@identificador.identificador.id.to_s())
+
+							upper_table = upper_table.get("T_Padre")
+
+						else
+							indiceMin = upper_table.get(@identificador.identificador.id.to_s())[3]							
+							break()
+						end
+					end
+			else
+				indiceMin = table.get(@identificador.identificador.id.to_s())[3]	
+			end	
+		end		
 
 		return "#{indiceMin}"
 	end	
@@ -1205,23 +1348,43 @@ class Max
 		return "int"
 	end
 
-	def evaluar(table)
-		if not table.ExistKey(@identificador.id.to_s())
-				upper_table = table.get("T_Padre")
+	def evaluar(table,tipo=nil)
+		modo = @identificador.get_nodo()
+		if modo == "Id"
+			if not table.ExistKey(@identificador.id.to_s())
+					upper_table = table.get("T_Padre")
 
-				while upper_table != nil
-					if not upper_table.ExistKey(@identificador.id.to_s())
+					while upper_table != nil
+						if not upper_table.ExistKey(@identificador.id.to_s())
 
-						upper_table = upper_table.get("T_Padre")
+							upper_table = upper_table.get("T_Padre")
 
-					else
-						indiceMax = upper_table.get(@identificador.id.to_s())[4]							
-						break()
+						else
+							indiceMax = upper_table.get(@identificador.id.to_s())[4]							
+							break()
+						end
 					end
-				end
+			else
+				indiceMax = table.get(@identificador.id.to_s())[4]	
+			end
 		else
-			indiceMax = table.get(@identificador.id.to_s())[4]	
-		end
+			if not table.ExistKey(@identificador.identificador.id.to_s())
+					upper_table = table.get("T_Padre")
+
+					while upper_table != nil
+						if not upper_table.ExistKey(@identificador.identificador.id.to_s())
+
+							upper_table = upper_table.get("T_Padre")
+
+						else
+							indiceMax = upper_table.get(@identificador.identificador.id.to_s())[4]							
+							break()
+						end
+					end
+			else
+				indiceMax = table.get(@identificador.identificador.id.to_s())[4]	
+			end	
+		end	
 
 		return "#{indiceMax}"
 	end	
@@ -1247,6 +1410,50 @@ class Atoi
 
 		return "int"
 	end
+	def evaluar(table,tipo=nil)
+		modo = @identificador.get_nodo()
+		if modo == "Id"
+			if not table.ExistKey(@identificador.id.to_s())
+					upper_table = table.get("T_Padre")
+
+					while upper_table != nil
+						if not upper_table.ExistKey(@identificador.id.to_s())
+
+							upper_table = upper_table.get("T_Padre")
+
+						else
+							array = upper_table.get(@identificador.id.to_s())[2]
+							if array.length != 1
+								error = ErrAtoi.new(@identificador.pos())
+								puts error.Error_to_s
+								exit()
+							end							
+							break()
+						end
+					end
+			else
+				array = table.get(@identificador.id.to_s())[2]
+				if array.length != 1
+					error = ErrAtoi.new(@identificador.pos())
+					puts error.Error_to_s
+					exit()
+				end		
+			end
+		else
+
+			array = @identificador.evaluar(table,nil)
+			if array.length != 1
+				error = ErrAtoi.new(@identificador.identificador.pos())
+				puts error.Error_to_s
+				exit()
+			end							
+		end	
+				
+
+
+		return "#{array[0]}"
+	end	
+
 end	
 
 class Size
@@ -1269,24 +1476,29 @@ class Size
 		return "int"
 	end
 
-	def evaluar(table)
+	def evaluar(table,tipo=nil)
+		modo = @identificador.get_nodo()
+		if modo == "Id"
+			if not table.ExistKey(@identificador.id.to_s())
+					upper_table = table.get("T_Padre")
 
-		if not table.ExistKey(@identificador.id.to_s())
-				upper_table = table.get("T_Padre")
+					while upper_table != nil
+						if not upper_table.ExistKey(@identificador.id.to_s())
 
-				while upper_table != nil
-					if not upper_table.ExistKey(@identificador.id.to_s())
+							upper_table = upper_table.get("T_Padre")
 
-						upper_table = upper_table.get("T_Padre")
-
-					else
-						size = upper_table.get(@identificador.id.to_s())[2].length							
-						break()
+						else
+							size = upper_table.get(@identificador.id.to_s())[2].length							
+							break()
+						end
 					end
-				end
+			else
+				size = table.get(@identificador.id.to_s())[2].length	
+			end
 		else
-			size = table.get(@identificador.id.to_s())[2].length	
-		end
+			array = @identificador.evaluar(table,nil)
+			size = array.length	
+		end	
 
 
 		return "#{size}"
@@ -1332,9 +1544,9 @@ class OpSuma
 		return "int"	
 	end
 
-	def evaluar(table)
-		val1 = @oper1.evaluar(table).to_i
-		val2 = @oper2.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil).to_i
+		val2 = @oper2.evaluar(table,nil).to_i
 		return "#{val1+val2}" 
 	end	 
 end
@@ -1374,9 +1586,9 @@ class OpResta
 		
 		return "int"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table).to_i
-		val2 = @oper2.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil).to_i
+		val2 = @oper2.evaluar(table,nil).to_i
 		return "#{val1-val2}" 
 	end
 end
@@ -1417,9 +1629,9 @@ class OpMultiplicacion
 		return "int"	
 	end
 
-	def evaluar(table)
-		val1 = @oper1.evaluar(table).to_i
-		val2 = @oper2.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil).to_i
+		val2 = @oper2.evaluar(table,nil).to_i
 		return "#{val1*val2}" 
 	end
 end
@@ -1459,9 +1671,9 @@ class OpDivisionE
 		
 		return "int"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table).to_i
-		val2 = @oper2.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil).to_i
+		val2 = @oper2.evaluar(table,nil).to_i
 		if val2 == 0
 			error = ErrDivzero.new(@oper2.pos())
 			puts error.Error_to_s
@@ -1506,9 +1718,9 @@ class OpModE
 		
 		return "int"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table).to_i
-		val2 = @oper2.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil).to_i
+		val2 = @oper2.evaluar(table,nil).to_i
 		return "#{val1%val2}" 
 	end
 end
@@ -1544,9 +1756,9 @@ class OpEquivalente
 		
 		return "bool"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table)
-		val2 = @oper2.evaluar(table)
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil)
+		val2 = @oper2.evaluar(table,nil)
 		return "#{val1==val2}" 
 	end
 end
@@ -1582,9 +1794,9 @@ class OpDesigual
 		
 		return "bool"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table)
-		val2 = @oper2.evaluar(table)
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil)
+		val2 = @oper2.evaluar(table,nil)
 		return "#{val1 != val2}" 
 	end
 end
@@ -1624,9 +1836,9 @@ class OpMayorIgual
 		
 		return "bool"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table).to_i
-		val2 = @oper2.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil).to_i
+		val2 = @oper2.evaluar(table,nil).to_i
 		return "#{val1>=val2}" 
 	end
 end
@@ -1666,9 +1878,9 @@ class OpMenorIgual
 		
 		return "bool"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table).to_i
-		val2 = @oper2.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil).to_i
+		val2 = @oper2.evaluar(table,nil).to_i
 		return "#{val1<=val2}" 
 	end
 end
@@ -1708,9 +1920,9 @@ class OpMenor
 		
 		return "bool"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table).to_i
-		val2 = @oper2.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil).to_i
+		val2 = @oper2.evaluar(table,nil).to_i
 		return "#{val1<val2}" 
 	end
 end				
@@ -1750,9 +1962,9 @@ class OpMayor
 		
 		return "bool"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table).to_i
-		val2 = @oper2.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil).to_i
+		val2 = @oper2.evaluar(table,nil).to_i
 		return "#{val1>val2}" 
 	end
 end
@@ -1792,9 +2004,9 @@ class OpAnd
 		
 		return "bool"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table)
-		val2 = @oper2.evaluar(table)
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil)
+		val2 = @oper2.evaluar(table,nil)
 		if val1 == "true" && val2 == "true"
 			return "true"
 		else
@@ -1838,9 +2050,9 @@ class OpOr
 		
 		return "bool"	
 	end
-	def evaluar(table)
-		val1 = @oper1.evaluar(table)
-		val2 = @oper2.evaluar(table)
+	def evaluar(table,tipo=nil)
+		val1 = @oper1.evaluar(table,nil)
+		val2 = @oper2.evaluar(table,nil)
 		if val1 == "true" || val2 == "true"
 			return "true"
 		else
@@ -1878,8 +2090,8 @@ class OpExclamacion
 		
 		return "bool"
 	end
-	def evaluar(table)
-		val = @oper.evaluar(table)
+	def evaluar(table,tipo=nil)
+		val = @oper.evaluar(table,nil)
 		if val == "true"
 			return "false"
 		else
@@ -1913,8 +2125,8 @@ class OpUMINUS
 		
 		return "int"
 	end
-	def evaluar(table)
-		val = @oper.evaluar(table).to_i
+	def evaluar(table,tipo=nil)
+		val = @oper.evaluar(table,nil).to_i
 		return "#{-val}"	 
 	end
 end	
@@ -1929,7 +2141,7 @@ class Literal
 	def check(padre=nil,tipo=nil)
 		return @tipo.to_s()
 	end
-	def evaluar(table=nil)
+	def evaluar(table=nil,tipo=nil)
 		return @valor.to_s()
 	end	
 end				
@@ -1971,8 +2183,8 @@ class ArrayConsult
 		return "int"
 	end
 
-	def evaluar(table)
-		exp_val = @exp.evaluar(table)
+	def evaluar(table,tipo=nil)
+		exp_val = @exp.evaluar(table,nil)
 		#Obtenemos el primer y ultimo indice del arreglo y el arreglo
 		if not table.ExistKey(@identificador.id.to_s())
 				upper_table = table.get("T_Padre")
@@ -2057,6 +2269,38 @@ class ArrayAsig
 		return tipo_id
 	end
 
+	def evaluar(table,tipo=nil)
+
+		if not table.ExistKey(identificador.id.to_s())
+				upper_table = table.get("T_Padre")
+
+				while upper_table != nil
+					if not upper_table.ExistKey(@identificador.id.to_s())
+
+						upper_table = upper_table.get("T_Padre")
+
+					else
+						array = upper_table.get(@identificador.id.to_s())[2]
+						index1 = upper_table.get(@identificador.id.to_s())[3]
+						index2 = upper_table.get(@identificador.id.to_s())[4]							
+						break()
+					end
+				end
+		else
+			array = table.get(@identificador.id.to_s())[2]
+			index1 = table.get(@identificador.id.to_s())[3]
+			index2 = table.get(@identificador.id.to_s())[4]
+		end
+
+		if array.length == 0
+			error = ErrArrayIni.new(@identificador.pos())
+			puts error.Error_to_s()
+			exit()
+		end
+		new_array = array.clone
+		return @listArrayAsig.evaluar(table,new_array,index1,index2) 
+	end	
+
 end
 
 class ListArrayAsig
@@ -2123,4 +2367,51 @@ class ListArrayAsig
 			end
 		end
 	end
+
+	def evaluar(table,new_array,index1,index2)
+
+
+		if @lista_exp != nil
+			indice = @exp1.evaluar(table,nil)
+			exp_val = @exp2.evaluar(table,nil)
+
+			if not indice.to_i >= index1 && indice.to_i <= index2
+				error = ErrOutRange.new(@exp1.pos())
+				puts error.Error_to_s()
+				exit()
+			end
+
+			indice_real = indice.to_i - index1
+			new_array[indice_real] = exp_val
+			@lista_exp.evaluar(table,new_array,index1,index2)
+		else
+			indice = @exp1.evaluar(table,nil)
+			exp_val = @exp2.evaluar(table,nil)
+
+			if not indice.to_i >= index1 && indice.to_i <= index2
+				error = ErrOutRange.new(@exp1.pos())
+				puts error.Error_to_s()
+				exit()				
+			end
+
+			indice_real = indice.to_i - index1
+			new_array[indice_real] = exp_val
+
+			if @consult != nil
+				consulta = @consult.evaluar(table,nil)
+				if not consulta.to_i >= index1 && consulta.to_i <= index2
+					error = ErrOutRange.new(@exp1.pos())
+					puts error.Error_to_s()
+					exit()
+				end	
+				consult_real = consulta.to_i - index1
+				x = new_array[consult_real]
+				return "#{x.to_s}"
+			end
+			return new_array
+		end		
+
+	end	
+
+
 end				

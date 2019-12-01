@@ -1,0 +1,32 @@
+|[
+	declare 
+	dinero, neto, retiro, comision_tot,i,ganancia,comision_mes : int;
+	f : bool
+	ganancia := 0;
+	dinero := 50;
+	neto := 0;
+	retiro := 0;
+	comision_tot := 0;
+	f := true;
+	i := 1;
+
+	do i <= 10 -->
+		ganancia := dinero*2;
+		comision_mes := ganancia/2;
+		comision_tot := comision_tot + comision_mes;
+		dinero := dinero + (ganancia-comision_mes);
+		if i%10 == 0 /\ f == true -->
+			retiro := dinero/2;
+			neto := neto + retiro;
+			dinero := dinero - retiro;
+			f := false
+		fi;
+		println "Mes " || i ||": ganancia = " || ganancia
+				|| ", comision = " || comision_mes 
+				|| ", dinero en cuenta = " || dinero;
+		i := i + 1
+	od;
+
+	println "Comision total: " || comision_tot || ", retiro totales: " || neto || ", neto ganancia: " || neto+comision_tot			
+	
+]|	

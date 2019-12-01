@@ -1,10 +1,21 @@
 |[
-	declare x,y:int,array[4..6]
-	x := min(y);
-	for i in min(y) to max(y) -->
+	declare x, y: int
+	|[
+		declare x, y: array[2..3] 
+		x := 1, 2; 
+		println "print 1 " || x[3] // x ser´a de tipo array 
+	]|;
 		|[
-			println y[i]
-		]|
-	rof
-	
+			declare x, y: bool 
+			x := true; 
+			println "print 2 " || x // x ser´a de tipo bool 
+		]|; 
+		x := 10; 
+		println "print 3 " || x; // x ser´a de tipo int
+		for x in 1 to 5 --> 
+			|[ declare x: array[-1..0] // Esconde la declaraci´on de x hecha por el for 
+				x := 4, 5; 
+				println "print 4 " || x[-2] // x ser´a de tipo array 
+			]| 
+		rof
 ]|

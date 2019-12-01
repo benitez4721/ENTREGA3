@@ -568,7 +568,7 @@ end
 # Representa el nodo de un ArrayAsig
 class ArrayAsig
 	
-	attr_accessor :Identificador, :ListArrayAsig
+	attr_accessor :identificador, :listArrayAsig
 
 	def initialize(identificador,listArrayAsig)
 		@identificador = identificador
@@ -817,6 +817,10 @@ class Conversion
 	#Funcion de impresion
 	def to_s(tab)
 		return (" "*tab) + @op.to_s() + @identificador.to_s(tab+1)
+	end	
+
+	def pos()
+		return @identificador.pos
 	end	
 end
 
