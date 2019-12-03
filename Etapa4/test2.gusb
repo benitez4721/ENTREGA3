@@ -1,18 +1,31 @@
+// Programa que multiplica dos arreglos 
 |[
-	declare 
-	dinero, neto, retiro, comision_tot,i,ganancia,comision_mes : int;
-	f : bool
-	ganancia := 0;
-	dinero := 900;
-	neto := 0;
-	retiro := 0;
-	comision_tot := 0;
-	f := true;
-	i := 1;
-
+	declare
+	x,y,z : array[0..2];
+	i : int
+	z := 0,0,0;
+	println "Inserte los elementos para el arreglo 'y': ";
+	read y;
+	println "Inserte los elementos para el arreglo 'x': ";
+	read x;
 	
-	ganancia := 900*(5/6);
-	println ganancia
+	for i in min(x) to max(x) -->
+		|[
+			z := z(i:x[i]*y[i])
+			
+		]|
+	rof;
+	println "La multiplicacion del arreglo 'x' con el arreglo 'y' es: ";
+	i := 0;
+	do i <= max(z) -->
+		if i != max(z) -->
+			print z[i] || ", " 
+
+		[] i == max(z) -->
+			print z[i]
+		fi;
+		i := i + 1
+	od
 	
 	
 ]|	

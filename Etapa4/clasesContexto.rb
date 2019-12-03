@@ -708,7 +708,8 @@ class Asignacion
 						upper_table = upper_table.get("T_Padre")
 
 					else
-						id_size = upper_table.get(@identificador.id.to_s())[1] 
+						id_size = upper_table.get(@identificador.id.to_s())[1]
+						break
 					end
 				end
 			else
@@ -741,6 +742,7 @@ class Asignacion
 
 						else
 							exp_size = upper_table.get(@expresion.exp.identificador.id.to_s())[1] 
+							break
 						end
 					end
 				else
@@ -829,15 +831,16 @@ class Asignacion
 
 					else
 						index1 = upper_table.get(@identificador.id.to_s())[3]
-						index2 = upper_table.get(@identificador.id.to_s())[4]							
+						index2 = upper_table.get(@identificador.id.to_s())[4]
+						upper_table.update(@identificador.id.to_s(),[tipo_id,array.length,array,index1,index2])							
 						break()
 					end
 				end
 			else
 				index1 = table.get(@identificador.id.to_s())[3]
 				index2 = table.get(@identificador.id.to_s())[4]
+				table.update(@identificador.id.to_s(),[tipo_id,array.length,array,index1,index2])
 			end	
-			table.update(@identificador.id.to_s(),[tipo_id,array.length,array,index1,index2])
 		end	
 	end	
 end
@@ -964,7 +967,7 @@ class Entrada
 				puts "Error la entrada debe ser de tipo '#{var_tipo}', vuelva a intentar"
 				input_tipo = nil
 			
-			elsif var_tipo == "int" || var_tipo == "bool" && error_previo == false && input_tipo != nil
+			elsif (var_tipo == "int" || var_tipo == "bool") && error_previo == false && input_tipo != nil
 				table.update(@identificador.id.to_s(),[var_tipo,input])
 				error_read = false
 
@@ -1423,20 +1426,29 @@ class Atoi
 
 						else
 							array = upper_table.get(@identificador.id.to_s())[2]
-							if array.length != 1
+							if array.length > 1
 								error = ErrAtoi.new(@identificador.pos())
 								puts error.Error_to_s
 								exit()
-							end							
+							elsif array.length == 0
+								error = ErrArrayIni.new(@identificador.pos())
+								puts error.Error_to_s
+								exit()
+							end	
+																						
 							break()
 						end
 					end
 			else
 				array = table.get(@identificador.id.to_s())[2]
-				if array.length != 1
+				if array.length > 1
 					error = ErrAtoi.new(@identificador.pos())
 					puts error.Error_to_s
 					exit()
+				elsif array.length == 0
+					error = ErrArrayIni.new(@identificador.pos())
+					puts error.Error_to_s
+					exit()	
 				end		
 			end
 		else
