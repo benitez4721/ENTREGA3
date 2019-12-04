@@ -1,0 +1,13 @@
+|[
+	declare a,b : array[-2..1];
+	i,j : int
+	//println "Ingrese los 4 digitos del arreglo: ";
+	//read a;
+	b := 1,0,5,0;
+	i := min(a);
+	j := max(a);
+	b := b(-2:54);
+	print b(-2:156)
+
+
+]|

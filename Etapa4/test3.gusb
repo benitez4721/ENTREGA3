@@ -3,7 +3,8 @@
 	dinero, neto, retiro, comision_tot,i,ganancia,comision_mes : int;
 	f : bool
 	ganancia := 0;
-	dinero := 50;
+	println "Ingrese el capital inical: ";
+	read dinero;
 	neto := 0;
 	retiro := 0;
 	comision_tot := 0;

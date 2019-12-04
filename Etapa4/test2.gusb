@@ -15,17 +15,7 @@
 			
 		]|
 	rof;
-	println "La multiplicacion del arreglo 'x' con el arreglo 'y' es: ";
-	i := 0;
-	do i <= max(z) -->
-		if i != max(z) -->
-			print z[i] || ", " 
-
-		[] i == max(z) -->
-			print z[i]
-		fi;
-		i := i + 1
-	od
+	println "La multiplicacion del arreglo 'x' con el arreglo 'y' es: " || z
 	
 	
 ]|	

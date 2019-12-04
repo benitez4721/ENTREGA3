@@ -1035,7 +1035,7 @@ class Salida
 		if @salto != nil
 			s << "\n"
 		end
-		print("#{s}")	
+		print s	
 
 	end			
 end
@@ -1058,13 +1058,70 @@ class Imprimir
 		
 	end
 
-	def evaluar(tabla,s)
+	def evaluar(table,s)
 		if @lista_impresion != nil
-			@lista_impresion.evaluar(tabla,s)
+			@lista_impresion.evaluar(table,s)
 		end
-			val = impresion.evaluar(tabla,nil)
-			val = val.to_s()
-			s << val
+			tipo_imp = @impresion.check(table,nil)
+			if tipo_imp =~ /^array/
+				if impresion.get_nodo == "Id"
+					if not table.ExistKey(@impresion.id.to_s())
+						upper_table = table.get("T_Padre")
+
+						while upper_table != nil
+							if not upper_table.ExistKey(@impresion.id.to_s())
+
+								upper_table = upper_table.get("T_Padre")
+
+							else
+								array_size = upper_table.get(@impresion.id.to_s)[1]
+								index1 = upper_table.get(@impresion.id.to_s)[3]
+								index2 = upper_table.get(@impresion.id.to_s)[4]
+								array = upper_table.get(@impresion.id.to_s)[2]								
+							end
+						end
+					else
+						array_size = table.get(@impresion.id.to_s)[1]
+						index1 = table.get(@impresion.id.to_s)[3]
+						index2 = table.get(@impresion.id.to_s)[4]
+						array = table.get(@impresion.id.to_s)[2]
+					end	
+			
+				else
+					if not table.ExistKey(@impresion.identificador.id.to_s())
+						upper_table = table.get("T_Padre")
+
+						while upper_table != nil
+							if not upper_table.ExistKey(@impresion.identificador.id.to_s())
+
+								upper_table = upper_table.get("T_Padre")
+
+							else
+								array_size = upper_table.get(@impresion.identificador.id.to_s)[1]
+								index1 = upper_table.get(@impresion.identificador.id.to_s)[3]
+								index2 = upper_table.get(@impresion.identificador.id.to_s)[4]
+								array = upper_table.get(@impresion.identificador.id.to_s)[2]								
+							end
+						end
+					else
+						array_size = table.get(@impresion.identificador.id.to_s)[1]
+						index1 = table.get(@impresion.identificador.id.to_s)[3]
+						index2 = table.get(@impresion.identificador.id.to_s)[4]
+						array = table.get(@impresion.identificador.id.to_s)[2]
+					end
+				end
+				s << index1.to_s+":"+array[0]
+				indexx = index1 + 1	
+				for i in 1..array_size-1
+					s << ", "+indexx.to_s+":"+array[i]
+					indexx = indexx + 1
+				end				
+			
+			else	
+				val = impresion.evaluar(table,nil)
+				val = val.to_s().delete('"')
+				s << val
+			end	
 	
 	end			
 
